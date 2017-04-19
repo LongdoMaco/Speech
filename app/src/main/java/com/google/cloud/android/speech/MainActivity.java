@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private static final String API_KEY = "AIzaSyCIWb579dBtIL5BflFopri9L1OB1Md8Wsk";
 
     private VoiceRecorder mVoiceRecorder;
+    private DBHelper mydb;
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
 
         @Override
@@ -100,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private RecyclerView mRecyclerView;
     private Spinner targetLanguageSpinner,resourceLanguageSpinner;
     String resourceLanguageCode,targetLanguageCode;
+    TranslateAdapter adapter;
+    ArrayList<TranslateModel> array_list;
 
     //Text To Speech Variable
     TextToSpeech t1;
@@ -135,11 +139,16 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         mText = (TextView) findViewById(R.id.text);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+//        final ArrayList<String> results = savedInstanceState == null ? null :
+//                savedInstanceState.getStringArrayList(STATE_RESULTS);
+//        mAdapter = new ResultAdapter(results);
+        mydb = new DBHelper(this);
+        array_list = mydb.getAllTranslates();
+        Log.d("LOG-----null",array_list.toString());
+
+        adapter = new TranslateAdapter(array_list, getApplication());
+        mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        final ArrayList<String> results = savedInstanceState == null ? null :
-                savedInstanceState.getStringArrayList(STATE_RESULTS);
-        mAdapter = new ResultAdapter(results);
-        mRecyclerView.setAdapter(mAdapter);
         resourceLanguageSpinner=(Spinner)findViewById(R.id.resourseLanguageSpinner);
 
         targetLanguageSpinner=(Spinner)findViewById(R.id.targetLanguageSpinner);
@@ -152,6 +161,17 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                 new Language("Vietnamese", "vi",R.drawable.ad),
                 new Language("Chinese", "zh-TW",R.drawable.ad),
                 new Language("Italian", "it",R.drawable.ad)
+        };
+        Language[] objLanguage2 ={
+
+                new Language("Japanese", "ja",R.drawable.ad),
+                new Language("French", "fr",R.drawable.ad),
+                new Language("German", "de",R.drawable.ad),
+                new Language("Korean", "ko",R.drawable.ad),
+                new Language("Vietnamese", "vi",R.drawable.ad),
+                new Language("Chinese", "zh-TW",R.drawable.ad),
+                new Language("Italian", "it",R.drawable.ad),
+                new Language("English", "en",R.drawable.ad)
         };
 
         SpinnerAdapter adapterResource =
@@ -173,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         });
         SpinnerAdapter adapterTarget =
                 new SpinnerAdapter(MainActivity.this,
-                        android.R.layout.simple_spinner_item, objLanguage);
+                        android.R.layout.simple_spinner_item, objLanguage2);
         adapterTarget.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         targetLanguageSpinner.setAdapter(adapterTarget);
         targetLanguageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -214,6 +234,11 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     REQUEST_RECORD_AUDIO_PERMISSION);
         }
     }
+//Long write here
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     @Override
     protected void onStop() {
@@ -228,13 +253,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         super.onStop();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mAdapter != null) {
-            outState.putStringArrayList(STATE_RESULTS, mAdapter.getResults());
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -316,8 +334,16 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             textViewHandler.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    mAdapter.addResult(translation.getTranslatedText());
+                                                    mydb.insertTranslate(resourceLanguageCode,targetLanguageCode,text,translation.getTranslatedText()
+                                                    );
+                                                    mRecyclerView.setAdapter(new TranslateAdapter(mydb.getAllTranslates(),getApplication()));
+                                                    mRecyclerView.invalidate();
                                                     mRecyclerView.smoothScrollToPosition(0);
+                                                    RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+                                                    itemAnimator.setAddDuration(1000);
+                                                    itemAnimator.setRemoveDuration(1000);
+                                                    mRecyclerView.setItemAnimator(itemAnimator);
+
                                                 }
                                             });
                                             return null;
