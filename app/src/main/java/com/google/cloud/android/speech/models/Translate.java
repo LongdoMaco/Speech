@@ -1,25 +1,29 @@
-package com.google.cloud.android.speech;
+package com.google.cloud.android.speech.models;
 
 /**
  * Created by longdo on 18/04/2017.
  */
 
-public class TranslateModel {
-    private Integer id;
+public class Translate {
+    private int id;
     private String lang_from;
     private String lang_to;
     private String text_from;
     private String text_to;
 
-    public Integer getId() {
+    public Translate() {
+
+    }
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public TranslateModel(Integer id, String lang_from, String lang_to, String text_from, String text_to) {
+    public Translate(int id, String lang_from, String lang_to, String text_from, String text_to) {
         this.id = id;
         this.lang_from = lang_from;
         this.lang_to = lang_to;

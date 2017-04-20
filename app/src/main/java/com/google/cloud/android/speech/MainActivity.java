@@ -17,6 +17,7 @@
 package com.google.cloud.android.speech;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -37,25 +38,34 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Spinner;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.cloud.translate.Translate;
+import com.google.cloud.android.speech.adapters.ListLanguageAdapter;
+import com.google.cloud.android.speech.adapters.TranslateAdapter;
+import com.google.cloud.android.speech.helps.CustomRVItemTouchListener;
+import com.google.cloud.android.speech.helps.RecyclerViewItemClickListener;
+import com.google.cloud.android.speech.models.Language;
+import com.google.cloud.android.speech.models.Translate;
+import com.google.cloud.android.speech.sqlites.LanguageDBHelper;
+import com.google.cloud.android.speech.sqlites.TranslateDBHelper;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements MessageDialogFragment.Listener {
 
     private static final String FRAGMENT_MESSAGE_DIALOG = "message_dialog";
 
-    private static final String STATE_RESULTS = "results";
+//    private static final String STATE_RESULTS = "results";
 
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 1;
 
@@ -63,7 +73,8 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private static final String API_KEY = "AIzaSyCIWb579dBtIL5BflFopri9L1OB1Md8Wsk";
 
     private VoiceRecorder mVoiceRecorder;
-    private DBHelper mydb;
+    private TranslateDBHelper translateDBHelper;
+    private LanguageDBHelper languageDBHelper;
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
 
         @Override
@@ -98,12 +109,12 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     // View references
     private TextView mStatus;
     private TextView mText;
-    private ResultAdapter mAdapter;
+
     private RecyclerView mRecyclerView;
-    private Spinner targetLanguageSpinner,resourceLanguageSpinner;
-    String resourceLanguageCode,targetLanguageCode;
+
+    String resourceLanguageCode="en",targetLanguageCode="ja";
     TranslateAdapter adapter;
-    ArrayList<TranslateModel> array_list;
+    ArrayList<Translate> array_list;
 
     //Text To Speech Variable
     TextToSpeech t1;
@@ -128,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         final Resources resources = getResources();
         final Resources.Theme theme = getTheme();
@@ -139,82 +152,156 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         mText = (TextView) findViewById(R.id.text);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
 //        final ArrayList<String> results = savedInstanceState == null ? null :
 //                savedInstanceState.getStringArrayList(STATE_RESULTS);
 //        mAdapter = new ResultAdapter(results);
-        mydb = new DBHelper(this);
-        array_list = mydb.getAllTranslates();
-        Log.d("LOG-----null",array_list.toString());
-
+        translateDBHelper = new TranslateDBHelper(this);
+        languageDBHelper=new LanguageDBHelper(this);
+        array_list = translateDBHelper.getAllTranslates();
         adapter = new TranslateAdapter(array_list, getApplication());
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        resourceLanguageSpinner=(Spinner)findViewById(R.id.resourseLanguageSpinner);
-
-        targetLanguageSpinner=(Spinner)findViewById(R.id.targetLanguageSpinner);
-        Language[] objLanguage ={
-                new Language("English", "en",R.drawable.ad),
-                new Language("Japanese", "ja",R.drawable.ad),
-                new Language("French", "fr",R.drawable.ad),
-                new Language("German", "de",R.drawable.ad),
-                new Language("Korean", "ko",R.drawable.ad),
-                new Language("Vietnamese", "vi",R.drawable.ad),
-                new Language("Chinese", "zh-TW",R.drawable.ad),
-                new Language("Italian", "it",R.drawable.ad)
-        };
-        Language[] objLanguage2 ={
-
-                new Language("Japanese", "ja",R.drawable.ad),
-                new Language("French", "fr",R.drawable.ad),
-                new Language("German", "de",R.drawable.ad),
-                new Language("Korean", "ko",R.drawable.ad),
-                new Language("Vietnamese", "vi",R.drawable.ad),
-                new Language("Chinese", "zh-TW",R.drawable.ad),
-                new Language("Italian", "it",R.drawable.ad),
-                new Language("English", "en",R.drawable.ad)
-        };
-
-        SpinnerAdapter adapterResource =
-                new SpinnerAdapter(MainActivity.this,
-                        android.R.layout.simple_spinner_item, objLanguage);
-        resourceLanguageSpinner.setAdapter(adapterResource);
-        resourceLanguageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(this,
+                mRecyclerView, new RecyclerViewItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Language obj = (Language) (adapterView.getItemAtPosition(i));
-                resourceLanguageCode=String.valueOf(obj.getCountryCode());
-                Log.d("Long",resourceLanguageCode);
+            public void onClick(View view, final int position) {
+                //Values are passing to activity & to fragment as well
+//                mydb.deleteTranslate(array_list.get(position).getId());
+//                Toast.makeText(MainActivity.this, "Single Click on position        :"+position,
+//                        Toast.LENGTH_SHORT).show();
+//                mRecyclerView.setAdapter(new TranslateAdapter(mydb.getAllTranslates(),getApplication()));
+//                adapter.notifyDataSetChanged();
+//                mRecyclerView.invalidate();
+//                mRecyclerView.smoothScrollToPosition(0);
+//                RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+//                itemAnimator.setAddDuration(1000);
+//                itemAnimator.setRemoveDuration(1000);
+//                mRecyclerView.setItemAnimator(itemAnimator);
+                    String needSpeak=translateDBHelper.getTextToFromId(array_list.get(position).getId());
+                    t1.speak(needSpeak, TextToSpeech.QUEUE_FLUSH, null);
+
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void onLongClick(View view, int position) {
+                Toast.makeText(MainActivity.this, "Long press on position :"+position,
+                        Toast.LENGTH_LONG).show();
+            }
+        }));
 
+
+        t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                }
             }
         });
-        SpinnerAdapter adapterTarget =
-                new SpinnerAdapter(MainActivity.this,
-                        android.R.layout.simple_spinner_item, objLanguage2);
-        adapterTarget.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        targetLanguageSpinner.setAdapter(adapterTarget);
-        targetLanguageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Language obj = (Language) (adapterView.getItemAtPosition(i));
-                targetLanguageCode=String.valueOf(obj.getCountryCode());
-                Log.d("Long",targetLanguageCode);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
 
         Log.d("LOG----------------","hello");
 
     }
+    @Override
 
+    public boolean onOptionsItemSelected(final MenuItem item){
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id == R.id.resourelanguege) {
+            final Dialog dialog = new Dialog(MainActivity.this);
+            // khởi tạo dialog
+            dialog.setContentView(R.layout.dialog_resource_language);
+            // xét layout cho dialog
+            dialog.setTitle("Select Language");
+            ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
+            ArrayList<Language> listLanguage=new ArrayList<Language>();
+            listLanguage=languageDBHelper.getLanguageList();
+            for(int i=0;i<listLanguage.size();i++){
+                listLanguage.get(i).setIcon(R.drawable.ad);
+            }
+
+            ListLanguageAdapter adapterResource =
+                    new ListLanguageAdapter(MainActivity.this,
+                            android.R.layout.simple_list_item_1, listLanguage);
+
+            dialog_ListView.setAdapter(adapterResource);
+            // xét tiêu đề cho dialog
+
+            dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view,
+                                        int position, long id) {
+                    Language obj = (Language) (adapterView.getItemAtPosition(position));
+                    item.setTitle(String.valueOf(obj.getLanguageName()));
+                    resourceLanguageCode=String.valueOf(obj.getLanguageCode());
+                    Log.d("Long",resourceLanguageCode);
+                    dialog.dismiss();
+                }});
+            // bắt sự kiện cho nút đăng kí
+            dialog.show();
+        }
+        if (id == R.id.targelanguage) {
+            final Dialog  dialog = new Dialog(MainActivity.this);
+            // khởi tạo dialog
+            dialog.setContentView(R.layout.dialog_resource_language);
+            // xét layout cho dialog
+            dialog.setTitle("Select Language");
+            ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
+            ArrayList<Language> listLanguage=new ArrayList<Language>();
+            listLanguage=languageDBHelper.getLanguageList();
+            for(int i=0;i<listLanguage.size();i++){
+                listLanguage.get(i).setIcon(R.drawable.ad);
+            }
+
+            ListLanguageAdapter adapterResource =
+                    new ListLanguageAdapter(MainActivity.this,
+                            android.R.layout.simple_list_item_1, listLanguage);
+
+            dialog_ListView.setAdapter(adapterResource);
+            // xét tiêu đề cho dialog
+
+
+            // bắt sự kiện cho nút đăng kí
+            dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view,
+                                        int position, long id) {
+                    Language obj = (Language) (adapterView.getItemAtPosition(position));
+                    item.setTitle(String.valueOf(obj.getLanguageName()));
+                    targetLanguageCode=String.valueOf(obj.getLanguageCode());
+                    Log.d("Long",targetLanguageCode);
+                    dialog.dismiss();
+                }});
+            // bắt sự kiện cho nút đăng kí
+            dialog.show();
+        }
+        if(id==R.id.action_deleteAllTranslates){
+            translateDBHelper.deleteAllTranslates();
+            mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+            mRecyclerView.invalidate();
+            mRecyclerView.smoothScrollToPosition(0);
+            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+            itemAnimator.setAddDuration(1000);
+            itemAnimator.setRemoveDuration(1000);
+            mRecyclerView.setItemAnimator(itemAnimator);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -326,17 +413,21 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             TranslateOptions options = TranslateOptions.newBuilder()
                                                     .setApiKey(API_KEY)
                                                     .build();
-                                            final Translate translate = options.getService();
+                                            final com.google.cloud.translate.Translate translate = options.getService();
                                             final Translation translation =
-                                                    translate.translate(text,Translate.TranslateOption.sourceLanguage(resourceLanguageCode),
-                                                            Translate.TranslateOption.targetLanguage(targetLanguageCode));
+                                                    translate.translate(text, com.google.cloud.translate.Translate.TranslateOption.sourceLanguage(resourceLanguageCode),
+                                                            com.google.cloud.translate.Translate.TranslateOption.targetLanguage(targetLanguageCode));
                                             Log.d("L",translation.getTranslatedText());
                                             textViewHandler.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    mydb.insertTranslate(resourceLanguageCode,targetLanguageCode,text,translation.getTranslatedText()
-                                                    );
-                                                    mRecyclerView.setAdapter(new TranslateAdapter(mydb.getAllTranslates(),getApplication()));
+                                                    Translate translate=new Translate();
+                                                    translate.setLang_from(resourceLanguageCode);
+                                                    translate.setLang_to(targetLanguageCode);
+                                                    translate.setText_from(text);
+                                                    translate.setText_to(translation.getTranslatedText());
+                                                    translateDBHelper.insertTranslate(translate);
+                                                    mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
                                                     mRecyclerView.invalidate();
                                                     mRecyclerView.smoothScrollToPosition(0);
                                                     RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
@@ -358,52 +449,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                 }
             };
 
-    private static class ViewHolder extends RecyclerView.ViewHolder {
-
-        TextView text;
-
-        ViewHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.item_result, parent, false));
-            text = (TextView) itemView.findViewById(R.id.text);
-        }
-
-    }
-
-    private static class ResultAdapter extends RecyclerView.Adapter<ViewHolder> {
-
-        private final ArrayList<String> mResults = new ArrayList<>();
-
-        ResultAdapter(ArrayList<String> results) {
-            if (results != null) {
-                mResults.addAll(results);
-            }
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()), parent);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.text.setText(mResults.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return mResults.size();
-        }
-
-        void addResult(String result) {
-            mResults.add(0, result);
-            notifyItemInserted(0);
-        }
-
-        public ArrayList<String> getResults() {
-            return mResults;
-        }
-
-    }
     public void onPause(){
         if(t1 !=null){
             t1.stop();

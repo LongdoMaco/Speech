@@ -1,4 +1,4 @@
-package com.google.cloud.android.speech;
+package com.google.cloud.android.speech.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
@@ -6,7 +6,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.cloud.android.speech.R;
+import com.google.cloud.android.speech.models.Translate;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,11 +22,11 @@ import java.util.List;
 
 public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View_Holder> {
 
-    private List<TranslateModel> translateModelList= Collections.emptyList();
+    private List<Translate> translateList = Collections.emptyList();
     Context context;
 
-    public TranslateAdapter(List<TranslateModel> translateModelList, Context context) {
-        this.translateModelList = translateModelList;
+    public TranslateAdapter(List<Translate> translateList, Context context) {
+        this.translateList = translateList;
         this.context = context;
     }
 
@@ -35,14 +39,18 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
 
     @Override
     public void onBindViewHolder(View_Holder holder, int position) {
-        holder.title.setText(translateModelList.get(position).getText_from());
-        holder.description.setText(translateModelList.get(position).getText_to());
+        holder.title.setText(translateList.get(position).getText_from());
+        holder.description.setText(translateList.get(position).getText_to());
+        holder.imageView.setImageResource(R.drawable.speaker);
 
     }
 
     @Override
     public int getItemCount() {
-        return translateModelList.size();
+        if (translateList!=null){
+            return translateList.size();
+        }
+        else return 0;
     }
 
     @Override
@@ -51,15 +59,15 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
     }
 
     // Insert a new item to the RecyclerView on a predefined position
-    public void insert(int position, TranslateModel data) {
-        translateModelList.add(position, data);
+    public void insert(int position, Translate data) {
+        translateList.add(position, data);
         notifyItemInserted(position);
     }
 
     // Remove a RecyclerView item containing a specified Data object
-    public void remove(TranslateModel data) {
-        int position = translateModelList.indexOf(data);
-        translateModelList.remove(position);
+    public void remove(Translate data) {
+        int position = translateList.indexOf(data);
+        translateList.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -71,12 +79,14 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
         CardView cv;
         TextView title;
         TextView description;
+        ImageView imageView;
 
         View_Holder(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cardView);
             title = (TextView) itemView.findViewById(R.id.title);
             description = (TextView) itemView.findViewById(R.id.description);
+            imageView = (ImageView) itemView.findViewById(R.id.imageView);
         }
     }
 }

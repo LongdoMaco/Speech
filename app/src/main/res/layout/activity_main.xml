@@ -26,17 +26,16 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimary"
             android:paddingLeft="32dp"
             android:paddingRight="32dp"/>
-        <include layout="@layout/spinner_layout"/>
         <include layout="@layout/item_result"/>
 
     </android.support.design.widget.AppBarLayout>

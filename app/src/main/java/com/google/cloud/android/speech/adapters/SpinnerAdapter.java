@@ -1,4 +1,4 @@
-package com.google.cloud.android.speech;
+package com.google.cloud.android.speech.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.cloud.android.speech.R;
+import com.google.cloud.android.speech.models.Language;
 
 /**
  * Created by longdo on 31/03/2017.
@@ -43,8 +46,8 @@ public class SpinnerAdapter extends ArrayAdapter<Language> {
         view = inflter.inflate(R.layout.custom_spinner_items, null);
         ImageView icon = (ImageView) view.findViewById(R.id.imageView);
         TextView names = (TextView) view.findViewById(R.id.textView);
-        icon.setImageResource(languages[position].getFlag());
-        names.setText(languages[position].getCountryName());
+        icon.setImageResource(languages[position].getIcon());
+        names.setText(languages[position].getLanguageName());
         return  view;
     }
 
@@ -54,8 +57,8 @@ public class SpinnerAdapter extends ArrayAdapter<Language> {
         view = inflter.inflate(R.layout.custom_spinner_items, null);
         ImageView icon = (ImageView) view.findViewById(R.id.imageView);
         TextView names = (TextView) view.findViewById(R.id.textView);
-        icon.setImageResource(languages[position].getFlag());
-        names.setText(languages[position].getCountryName());
+        icon.setImageResource(languages[position].getIcon());
+        names.setText(languages[position].getLanguageName());
         return  view;
     }
 }
