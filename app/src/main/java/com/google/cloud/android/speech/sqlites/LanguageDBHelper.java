@@ -33,7 +33,7 @@ public class LanguageDBHelper {
                 language.setId(cursor.getInt(0));
                 language.setLanguageName(cursor.getString(1));
                 language.setLanguageCode(cursor.getString(2));
-                language.setIcon(cursor.getInt(3));
+                language.setIcon(cursor.getString(3));
             }
         }catch (Exception ex){
             ex.printStackTrace();
@@ -43,7 +43,7 @@ public class LanguageDBHelper {
     }
 
     public ArrayList<Language> getLanguageList(){
-        String qr = "Select * from languages";
+        String qr = "Select * from languages order by language_name asc";
         SQLiteDatabase db = dbHelper.openDatabase();
         ArrayList<Language> languageList = new ArrayList<>();
         Language language = null;
@@ -51,7 +51,7 @@ public class LanguageDBHelper {
         try {
             if (cursor != null && cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
-                    language = new Language(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3));
+                    language = new Language(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
                     languageList.add(language);
                     cursor.moveToNext();
                 }

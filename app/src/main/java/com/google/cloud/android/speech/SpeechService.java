@@ -185,6 +185,7 @@ public class SpeechService extends Service {
             language.append("-");
             language.append(country);
         }
+        Log.d("Default language",language.toString());
         return language.toString();
     }
 

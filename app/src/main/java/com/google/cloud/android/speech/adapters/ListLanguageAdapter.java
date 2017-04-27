@@ -49,7 +49,13 @@ public class ListLanguageAdapter extends ArrayAdapter<Language> {
         view = inflter.inflate(R.layout.custom_list_item, null);
         ImageView icon = (ImageView) view.findViewById(R.id.imageView);
         TextView names = (TextView) view.findViewById(R.id.textView);
-        icon.setImageResource(languages.get(position).getIcon());
+        if(languages.get(position).getIcon()!=null && !"".equals(languages.get(position).getIcon())){
+            int resID = context.getResources().getIdentifier(languages.get(position).getIcon(), "drawable", context.getPackageName());
+            icon.setImageResource(resID);
+        }
+        else{
+            icon.setImageResource(R.drawable.vn);
+        }
         names.setText(languages.get(position).getLanguageName());
         return  view;
     }
@@ -60,7 +66,10 @@ public class ListLanguageAdapter extends ArrayAdapter<Language> {
         view = inflter.inflate(R.layout.custom_list_item, null);
         ImageView icon = (ImageView) view.findViewById(R.id.imageView);
         TextView names = (TextView) view.findViewById(R.id.textView);
-        icon.setImageResource(languages.get(position).getIcon());
+        if(languages.get(position).getIcon()!=null){
+            icon.setImageResource(Integer.valueOf("R.drawable."+languages.get(position).getIcon()));
+        }
+
         names.setText(languages.get(position).getLanguageName());
         return  view;
     }

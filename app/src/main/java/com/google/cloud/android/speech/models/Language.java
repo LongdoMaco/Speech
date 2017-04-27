@@ -8,9 +8,9 @@ public class Language {
     private int id;
     private String languageName;
     private String languageCode;
-    int icon;
+    String icon;
 
-    public Language(int id, String languageName, String languageCode, int icon) {
+    public Language(int id, String languageName, String languageCode, String icon) {
         this.id = id;
         this.languageName = languageName;
         this.languageCode = languageCode;
@@ -44,11 +44,11 @@ public class Language {
         this.languageCode = languageCode;
     }
 
-    public int getIcon() {
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(int icon) {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 }

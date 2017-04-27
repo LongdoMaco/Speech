@@ -221,9 +221,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
             ArrayList<Language> listLanguage=new ArrayList<Language>();
             listLanguage=languageDBHelper.getLanguageList();
-            for(int i=0;i<listLanguage.size();i++){
-                listLanguage.get(i).setIcon(R.drawable.ad);
-            }
+
 
             ListLanguageAdapter adapterResource =
                     new ListLanguageAdapter(MainActivity.this,
@@ -255,9 +253,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
             ArrayList<Language> listLanguage=new ArrayList<Language>();
             listLanguage=languageDBHelper.getLanguageList();
-            for(int i=0;i<listLanguage.size();i++){
-                listLanguage.get(i).setIcon(R.drawable.ad);
-            }
+
 
             ListLanguageAdapter adapterResource =
                     new ListLanguageAdapter(MainActivity.this,
