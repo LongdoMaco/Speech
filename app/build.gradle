@@ -138,4 +138,6 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
     apt 'org.projectlombok:lombok:1.16.10'
     provided 'org.projectlombok:lombok:1.16.10'
+
+    compile 'de.hdodenhof:circleimageview:1.2.1'
 }

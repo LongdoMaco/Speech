@@ -6,35 +6,72 @@ package com.google.cloud.android.longdo.models;
 
 public class Translate {
     private int id;
-    private String lang_from;
-    private String lang_to;
+    private String langcode_from;
+    private String langcode_to;
     private String text_from;
     private String text_to;
     private String flag_from;
     private String flag_to;
-    private int idLanguage;
 
-    public int getIdLanguage() {
-        return idLanguage;
-    }
+    private String language_from;
+    private String language_to;
 
-    public void setIdLanguage(int idLanguage) {
-        this.idLanguage = idLanguage;
-    }
+
 
     public Translate() {
 
     }
 
-    public Translate(int id, String lang_from, String lang_to, String text_from, String text_to, String flag_from, String flag_to, int idLanguage) {
+    public Translate(int id, String langcode_from, String langcode_to, String text_from, String text_to, String flag_from, String flag_to, String language_from, String language_to) {
         this.id = id;
-        this.lang_from = lang_from;
-        this.lang_to = lang_to;
+        this.langcode_from = langcode_from;
+        this.langcode_to = langcode_to;
         this.text_from = text_from;
         this.text_to = text_to;
         this.flag_from = flag_from;
         this.flag_to = flag_to;
-        this.idLanguage = idLanguage;
+        this.language_from = language_from;
+        this.language_to = language_to;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getLangcode_from() {
+        return langcode_from;
+    }
+
+    public void setLangcode_from(String langcode_from) {
+        this.langcode_from = langcode_from;
+    }
+
+    public String getLangcode_to() {
+        return langcode_to;
+    }
+
+    public void setLangcode_to(String langcode_to) {
+        this.langcode_to = langcode_to;
+    }
+
+    public String getText_from() {
+        return text_from;
+    }
+
+    public void setText_from(String text_from) {
+        this.text_from = text_from;
+    }
+
+    public String getText_to() {
+        return text_to;
+    }
+
+    public void setText_to(String text_to) {
+        this.text_to = text_to;
     }
 
     public String getFlag_from() {
@@ -53,45 +90,19 @@ public class Translate {
         this.flag_to = flag_to;
     }
 
-    public int getId() {
-        return id;
+    public String getLanguage_from() {
+        return language_from;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setLanguage_from(String language_from) {
+        this.language_from = language_from;
     }
 
-
-
-    public String getLang_from() {
-        return lang_from;
+    public String getLanguage_to() {
+        return language_to;
     }
 
-    public void setLang_from(String lang_from) {
-        this.lang_from = lang_from;
-    }
-
-    public String getLang_to() {
-        return lang_to;
-    }
-
-    public void setLang_to(String lang_to) {
-        this.lang_to = lang_to;
-    }
-
-    public String getText_from() {
-        return text_from;
-    }
-
-    public void setText_from(String text_from) {
-        this.text_from = text_from;
-    }
-
-    public String getText_to() {
-        return text_to;
-    }
-
-    public void setText_to(String text_to) {
-        this.text_to = text_to;
+    public void setLanguage_to(String language_to) {
+        this.language_to = language_to;
     }
 }

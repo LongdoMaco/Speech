@@ -30,13 +30,14 @@ public class TranslateDBHelper{
             if (cursor != null && cursor.moveToFirst()) {
                 translate = new Translate();
                 translate.setId(cursor.getInt(0));
-                translate.setLang_from(cursor.getString(1));
-                translate.setLang_to(cursor.getString(2));
+                translate.setLangcode_from(cursor.getString(1));
+                translate.setLangcode_to(cursor.getString(2));
                 translate.setText_from(cursor.getString(3));
                 translate.setText_to(cursor.getString(4));
                 translate.setFlag_from(cursor.getString(5));
                 translate.setFlag_to(cursor.getString(6));
-                translate.setIdLanguage(cursor.getInt(7));
+                translate.setLanguage_from(cursor.getString(7));
+                translate.setLanguage_to(cursor.getString(8));
             }
         }catch (Exception ex){
             ex.printStackTrace();
@@ -54,7 +55,7 @@ public class TranslateDBHelper{
         try {
             if (cursor != null && cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
-                    translate = new Translate(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getInt(7));
+                    translate = new Translate(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8));
                     translateList.add(translate);
                     cursor.moveToNext();
                 }
@@ -67,50 +68,17 @@ public class TranslateDBHelper{
     }
 
     public boolean insertTranslate(Translate translate) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put("lang_from", lang_from);
-//        contentValues.put("lang_to", lang_to);
-//        contentValues.put("text_from", text_from);
-//        contentValues.put("text_to", text_to);
-//        db.insert("translates", null, contentValues);
-//        return true;
-        String qr = "insert into translates (LANG_FROM,LANG_TO,TEXT_FROM,TEXT_TO,FLAG_FROM,FLAG_TO,ID_LANGUAGE) values('"+translate.getLang_from()+"', '"+translate.getLang_to()+"', '"+translate.getText_from()+"', '"+translate.getText_to()+"','"+translate.getFlag_from()+"','"+translate.getFlag_to()+"', '"+translate.getIdLanguage()+"')";
+        String qr = "insert into translates (LANGCODE_FROM,LANGCODE_TO,TEXT_FROM,TEXT_TO,FLAG_FROM,FLAG_TO,LANGUAGE_FROM,LANGUAGE_TO) values('"+translate.getLangcode_from()+"', '"+translate.getLangcode_to()+"', '"+translate.getText_from()+"', '"+translate.getText_to()+"','"+translate.getFlag_from()+"','"+translate.getFlag_to()+"', '"+translate.getLanguage_from()+"', '"+translate.getLanguage_to()+"')";
         Log.d("sql",qr);
         SQLiteDatabase db = dbHelper.openDatabase();
         SQLiteStatement statement = db.compileStatement(qr);
         statement.executeInsert();
         return true;
     }
-//
-//    public Cursor getData(int id) {
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        Cursor res =  db.rawQuery( "select * from translates where id="+id+"", null );
-//        return res;
-//    }
-//
-//    public int numberOfRows(){
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        int numRows = (int) DatabaseUtils.queryNumEntries(db, TRANSLATES_TABLE_NAME);
-//        return numRows;
-//    }
 
-//    public boolean updateTranslate (Integer id, String lang_from, String lang_to, String text_from, String text_to) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put("lang_from", lang_from);
-//        contentValues.put("lang_to", lang_to);
-//        contentValues.put("text_from", text_from);
-//        contentValues.put("text_to", text_to);
-//        db.update("translates", contentValues, "id = ? ", new String[] { Inteer.toString(id) } );
-//        return true;
-//    }
 
     public boolean deleteTranslate (Integer id) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        return db.delete("translates",
-//                "id = ? ",
-//                new String[] { Integer.toString(id) });
+
         String qr = "delete from translates where id = "+id+" ";
         Log.d("qr", qr);
         SQLiteDatabase db = dbHelper.openDatabase();
@@ -119,10 +87,6 @@ public class TranslateDBHelper{
         return true;
     }
     public boolean deleteAllTranslates () {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        return db.delete("translates",
-//                "id = ? ",
-//                new String[] { Integer.toString(id) });
         String qr = "delete from translates";
         Log.d("qr", qr);
         SQLiteDatabase db = dbHelper.openDatabase();
@@ -131,31 +95,10 @@ public class TranslateDBHelper{
         return true;
     }
 
-//    public ArrayList<Translate> getAllTranslates() {
-//        ArrayList<Translate> array_list = new ArrayList<Translate>();
-//
-//        //hp = new HashMap();
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        Cursor res =  db.rawQuery( "select * from translates", null );
-//        res.moveToLast();
-//
-//        while(res.isBeforeFirst() == false){
-//            Translate item=new Translate(res.getInt(res.getColumnIndex(TRANSLATES_COLUMN_ID)),
-//                    res.getString(res.getColumnIndex(TRANSLATES_COLUMN_LANG_FROM)),
-//                    res.getString(res.getColumnIndex(TRANSLATES_COLUMN_LANG_TO)),
-//                    res.getString(res.getColumnIndex(TRANSLATES_COLUMN_TEXT_FROM)),
-//                    res.getString(res.getColumnIndex(TRANSLATES_COLUMN_TEXT_TO)));
-//            array_list.add(item);
-//            res.moveToPrevious();
-//        }
-//        return array_list;
-//
-//    }
     public String getSpeechCodeFromId(int id) {
 
         String textTo;
-        //hp = new HashMap();
-        String qr= "select language_speech_status from translates,languages where translates.id_language=languages.id and translates.id="+id;
+        String qr= "select language_speech_status from translates,languages where translates.LANGUAGE_TO=languages.language_name and translates.id="+id;
         SQLiteDatabase db = dbHelper.openDatabase();
         Cursor cursor = db.rawQuery(qr, null);
         cursor.moveToFirst();

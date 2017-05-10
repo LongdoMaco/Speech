@@ -44,6 +44,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -119,11 +120,11 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     private RecyclerView mRecyclerView;
 
-    String resourceLanguageCode="en",targetLanguageCode="ja",speechCode="en-US",flagFrom="us",flagTo="jp";
-    int idLanguage=57;
+    String resourceLanguageCode="en",targetLanguageCode="ja",speechCode="en-US",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
     TranslateAdapter adapter;
     ArrayList<Translate> array_list;
     private TextView targetLanguage,sourceLanguage;
+    private ImageView flagIconFrom,flagIconTo;
 
     //Text To Speech Variable
     TextToSpeech t1;
@@ -160,6 +161,12 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 //        mText = (TextView) findViewById(R.id.text);
 //        mStatus = (TextView) findViewById(R.id.status);
 
+
+
+        flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
+        flagIconFrom.setBackgroundResource(R.drawable.us);
+        flagIconTo=(ImageView) findViewById(R.id.toolBarFlagTo);
+        flagIconTo.setBackgroundResource(R.drawable.jp);
         sourceLanguage=(TextView) findViewById(R.id.sourceLanguage);
         sourceLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,14 +198,15 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     if(String.valueOf(obj.getLanguageCode()).equals(targetLanguageCode)){
                         targetLanguageCode=resourceLanguageCode;
                         if (sourceLanguage.getText().length() > 10) {
-                            String truncated = sourceLanguage.getText().subSequence(0, 12).toString().concat("...");
+                            String truncated = sourceLanguage.getText().subSequence(0, 10).toString().concat("...");
                             targetLanguage.setText(truncated);
                         }
                         else {
                             targetLanguage.setText(sourceLanguage.getText());
                         }
+
                         flagTo=flagFrom;
-                        idLanguage=obj.getId();
+
                     }
 
                         if (title.length() > 10) {
@@ -208,10 +216,13 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                         else {
                             sourceLanguage.setText(title);
                         }
-
-                    resourceLanguageCode=String.valueOf(obj.getLanguageCode());
-                    speechCode=String.valueOf(obj.getSpeechCode());
                     flagFrom=obj.getIcon();
+                    int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+                    flagIconFrom.setImageResource(resID);
+                    resourceLanguageCode=String.valueOf(obj.getLanguageCode());
+                    languageFrom=obj.getLanguageName();
+                    speechCode=String.valueOf(obj.getSpeechCode());
+
                     Intent intent = new Intent(getApplication(), SpeechService.class);
                     intent.putExtra("speechCode", speechCode);
                     // Prepare Cloud Speech API
@@ -265,13 +276,13 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                         if(String.valueOf(obj.getLanguageCode()).equals(resourceLanguageCode)){
                             resourceLanguageCode=targetLanguageCode;
                             if (targetLanguage.getText().length() > 10) {
-                                String truncated = targetLanguage.getText().subSequence(0, 12).toString().concat("...");
+                                String truncated = targetLanguage.getText().subSequence(0, 10).toString().concat("...");
                                 sourceLanguage.setText(truncated);
                             }
                             else {
                                 sourceLanguage.setText(targetLanguage.getText());
                             }
-
+                            flagFrom=flagTo;
                         }
 
 
@@ -283,11 +294,12 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             else {
                                 targetLanguage.setText(title);
                             }
-
-
-                        targetLanguageCode=String.valueOf(obj.getLanguageCode());
-                        idLanguage=(obj.getId());
                         flagTo=obj.getIcon();
+                        int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+                        flagIconTo.setImageResource(resID);
+                        targetLanguageCode=String.valueOf(obj.getLanguageCode());
+                        languageTo=obj.getLanguageName();
+
                         Log.d("Long",targetLanguageCode+"-----"+speechCode);
                         dialog.dismiss();
                     }});
@@ -636,13 +648,14 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                         public void onResponse(Call<TranslateResponse> call, Response<TranslateResponse> response) {
                                             Log.d("TAG", "onResponse: " + response.body().getTranslateData().getTranslations().toString().substring(1,response.body().getTranslateData().getTranslations().toString().length()-1));
                                             Translate translate=new Translate();
-                                            translate.setLang_from(resourceLanguageCode);
-                                            translate.setLang_to(targetLanguageCode);
+                                            translate.setLangcode_from(resourceLanguageCode);
+                                            translate.setLangcode_to(targetLanguageCode);
                                             translate.setText_from(text);
                                             translate.setFlag_from(flagFrom);
                                             translate.setFlag_to(flagTo);
                                             translate.setText_to(response.body().getTranslateData().getTranslations().toString().substring(1,response.body().getTranslateData().getTranslations().toString().length()-1));
-                                            translate.setIdLanguage(idLanguage);
+                                            translate.setLanguage_from(languageFrom);
+                                            translate.setLanguage_to(languageTo);
                                             translateDBHelper.insertTranslate(translate);
                                             mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
                                             mRecyclerView.invalidate();

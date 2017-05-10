@@ -1,6 +1,8 @@
 package com.google.cloud.android.longdo.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.cloud.android.longdo.R;
+import com.google.cloud.android.longdo.helps.ImageConverter;
 import com.google.cloud.android.longdo.models.Translate;
 
 import java.util.Collections;
@@ -45,18 +48,21 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
     public void onBindViewHolder(View_Holder holder, int position) {
         holder.title.setText(translateList.get(position).getText_from());
         holder.description.setText(translateList.get(position).getText_to());
+
         if(translateList.get(position).getFlag_from()!=null && !"".equals(translateList.get(position).getFlag_from()))
             {
-                int flagFrom = context.getResources().getIdentifier(translateList.get(position).getFlag_from(), "drawable", context.getPackageName());
-                holder.flag_from.setImageResource(flagFrom);
+                Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),context.getResources().getIdentifier(translateList.get(position).getFlag_from(), "drawable", context.getPackageName()));
+                Bitmap circularBitmap = ImageConverter.getRoundedCornerBitmap(bitmap, 80);
+                holder.flag_from.setImageBitmap(circularBitmap);
             }
         else {
             holder.flag_from.setImageResource(R.drawable.vn);
         }
         if(translateList.get(position).getFlag_to()!=null && !"".equals(translateList.get(position).getFlag_to()))
         {
-            int flagTo = context.getResources().getIdentifier(translateList.get(position).getFlag_to(), "drawable", context.getPackageName());
-            holder.flag_to.setImageResource(flagTo);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),context.getResources().getIdentifier(translateList.get(position).getFlag_to(), "drawable", context.getPackageName()));
+            Bitmap circularBitmap = ImageConverter.getRoundedCornerBitmap(bitmap, 80);
+            holder.flag_to.setImageBitmap(circularBitmap);
         }
         else {
             holder.flag_to.setImageResource(R.drawable.vn);
@@ -68,6 +74,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
             holder.relativeLayout.setBackgroundResource(R.drawable.background_grey);
 
         }
+        holder.language_from.setText(translateList.get(position).getLanguage_from());
 
     }
 
@@ -103,6 +110,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
 
         CardView cv;
         TextView title;
+        TextView language_from;
         TextView description;
         ImageView flag_from,flag_to;
         LinearLayout relativeLayout;
@@ -111,6 +119,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cardView);
             title = (TextView) itemView.findViewById(R.id.title);
+            language_from = (TextView) itemView.findViewById(R.id.languagefrom);
             description = (TextView) itemView.findViewById(R.id.description);
             flag_from = (ImageView) itemView.findViewById(flagFrom);
             flag_to = (ImageView) itemView.findViewById(flagTo);
