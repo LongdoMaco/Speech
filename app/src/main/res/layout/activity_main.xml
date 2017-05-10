@@ -20,7 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.google.cloud.android.speech.MainActivity">
+    tools:context="com.google.cloud.android.longdo.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
@@ -28,25 +28,28 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:paddingLeft="32dp"
-            android:paddingRight="32dp"/>
-        <include layout="@layout/item_result"/>
-
+        <include layout="@layout/toolbar"/>
     </android.support.design.widget.AppBarLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/backgroud_main"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/spacing_small"
         android:paddingTop="@dimen/spacing_small"
         app:behavior_overlapTop="128dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnFloatingAction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="40px"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/ic_action"
+        app:fabSize="normal"
+        app:backgroundTint="@color/teal800"
+        app:rippleColor="@color/teal900"/>
+
 
 </android.support.design.widget.CoordinatorLayout>

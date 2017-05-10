@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
+        android:layout_toRightOf="@+id/imageView"
+        android:paddingBottom="20px"
+        android:paddingLeft="20px"
+        android:paddingTop="20px"
+        android:text="Store"
+        android:textAlignment="gravity"
+        android:textColor="@color/RoyalBlue"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/clearTranslateTextView"
+        android:layout_width="match_parent"
+        android:layout_weight="0.02"
+        android:paddingBottom="40px"
+        android:paddingLeft="30px"
+        android:paddingTop="40px"
+        android:text="Clear Translate"
+        android:textColor="@color/Black"
+        android:textSize="20sp"
+        android:layout_height="wrap_content"
+        />
+    <View
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:background="@color/background">
+
+    </View>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_weight="0.02"
+        android:paddingBottom="40px"
+        android:paddingLeft="30px"
+        android:paddingTop="40px"
+        android:text="Clear Cache"
+        android:textColor="@color/Black"
+        android:textSize="20sp" />
+    <View
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:background="@color/background"></View>
+
+    </LinearLayout>

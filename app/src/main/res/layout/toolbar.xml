@@ -1,0 +1,37 @@
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="100px"
+    android:background="@color/teal800"
+    android:minHeight="?attr/actionBarSize"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+    <TextView
+        android:id="@+id/sourceLanguage"
+        android:layout_width="290px"
+        android:text="English"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textSize="16sp"
+        android:textColor="@color/White"
+        android:textAlignment="viewEnd"/>
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="35px"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/translate"></ImageView>
+    <TextView
+        android:id="@+id/targetLanguage"
+        android:textColor="@color/White"
+        android:layout_width="290px"
+        android:text="Vietnamese"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textSize="16sp"/>
+
+</android.support.v7.widget.Toolbar>

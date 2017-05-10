@@ -1,33 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/resourelanguege"
-        android:title="English"
-        android:orderInCategory="100"
-        app:showAsAction="always"
 
-        />
-    <item
-        android:id="@+id/translateIcon"
-        android:icon="@drawable/resoure_language_appbar"
-        android:orderInCategory="100"
-        app:showAsAction="always"
-        android:title="Translate"
-
-        />
-    <item
-        android:id="@+id/targelanguage"
-        android:title="Vietnamese"
-        android:orderInCategory="100"
-        app:showAsAction="always"
-        />
     <item android:id="@+id/action_settings"
         android:title="Settings"
         android:orderInCategory="100"
         app:showAsAction="never" />
     <item android:id="@+id/action_deleteAllTranslates"
-        android:title="Delete All Translate"
-        android:orderInCategory="100"
+        android:title="Clear Translate"
+        android:orderInCategory="200"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_feedback"
+        android:title="Feeback"
+        android:orderInCategory="300"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_recommend"
+        android:title="Recommmend"
+        android:orderInCategory="400"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_about"
+        android:title="About"
+        android:orderInCategory="500"
         app:showAsAction="never" />
 </menu>
