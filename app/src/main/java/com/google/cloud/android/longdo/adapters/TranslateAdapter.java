@@ -75,6 +75,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
 
         }
         holder.language_from.setText(translateList.get(position).getLanguage_from());
+        holder.language_to.setText(translateList.get(position).getLanguage_to());
 
     }
 
@@ -110,7 +111,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
 
         CardView cv;
         TextView title;
-        TextView language_from;
+        TextView language_from,language_to;
         TextView description;
         ImageView flag_from,flag_to;
         LinearLayout relativeLayout;
@@ -120,6 +121,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
             cv = (CardView) itemView.findViewById(R.id.cardView);
             title = (TextView) itemView.findViewById(R.id.title);
             language_from = (TextView) itemView.findViewById(R.id.languagefrom);
+            language_to = (TextView) itemView.findViewById(R.id.languageto);
             description = (TextView) itemView.findViewById(R.id.description);
             flag_from = (ImageView) itemView.findViewById(flagFrom);
             flag_to = (ImageView) itemView.findViewById(flagTo);

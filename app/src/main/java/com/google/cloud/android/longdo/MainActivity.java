@@ -31,7 +31,6 @@ import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -47,7 +46,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.cloud.android.longdo.adapters.ListLanguageAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter;
@@ -71,14 +69,9 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements MessageDialogFragment.Listener {
 
     private static final String FRAGMENT_MESSAGE_DIALOG = "message_dialog";
-
-//    private static final String STATE_RESULTS = "results";
-
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 1;
-
     private SpeechService mSpeechService;
     private static final String API_KEY = "AIzaSyCIWb579dBtIL5BflFopri9L1OB1Md8Wsk";
-
     private VoiceRecorder mVoiceRecorder;
     private TranslateDBHelper translateDBHelper;
     private LanguageDBHelper languageDBHelper;
@@ -86,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
         @Override
         public void onVoiceStart() {
-//            showStatus(true);
             if (mSpeechService != null) {
                 mSpeechService.startRecognizing(mVoiceRecorder.getSampleRate());
             }
@@ -101,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
         @Override
         public void onVoiceEnd() {
-//            showStatus(false);
             if (mSpeechService != null) {
                 mSpeechService.finishRecognizing();
             }
@@ -109,24 +100,14 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     };
 
-    // Resource caches
-    private int mColorHearing;
-    private int mColorNotHearing;
     private FloatingActionButton fabListen;
-
-    // View references
-//    private TextView mStatus;
-//    private TextView mText;
-
     private RecyclerView mRecyclerView;
-
     String resourceLanguageCode="en",targetLanguageCode="ja",speechCode="en-US",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
     TranslateAdapter adapter;
     ArrayList<Translate> array_list;
     private TextView targetLanguage,sourceLanguage;
     private ImageView flagIconFrom,flagIconTo;
 
-    //Text To Speech Variable
     TextToSpeech t1;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -135,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
             mSpeechService = SpeechService.from(binder);
             mSpeechService.addListener(mSpeechServiceListener);
-//            mStatus.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -156,13 +136,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         toolbar.setTitle("");
         final Resources resources = getResources();
         final Resources.Theme theme = getTheme();
-        mColorHearing = ResourcesCompat.getColor(resources, R.color.status_hearing, theme);
-        mColorNotHearing = ResourcesCompat.getColor(resources, R.color.status_not_hearing, theme);
-//        mText = (TextView) findViewById(R.id.text);
-//        mStatus = (TextView) findViewById(R.id.status);
-
-
-
         flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
         flagIconFrom.setBackgroundResource(R.drawable.us);
         flagIconTo=(ImageView) findViewById(R.id.toolBarFlagTo);
@@ -179,15 +152,10 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
             ArrayList<Language> listLanguage=new ArrayList<Language>();
             listLanguage=languageDBHelper.getLanguageList();
-
-
             ListLanguageAdapter adapterResource =
                     new ListLanguageAdapter(MainActivity.this,
                             android.R.layout.simple_list_item_1, listLanguage);
-
             dialog_ListView.setAdapter(adapterResource);
-            // xét tiêu đề cho dialog
-
             dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
                 @Override
@@ -208,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                         flagTo=flagFrom;
 
                     }
-
                         if (title.length() > 10) {
                             String truncated = title.subSequence(0, 12).toString().concat("...");
                             sourceLanguage.setText(truncated);
@@ -230,7 +197,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     Log.d("Long",resourceLanguageCode+"-----"+speechCode);
                     dialog.dismiss();
                 }});
-            // bắt sự kiện cho nút đăng kí
             dialog.show();
             }
         });
@@ -239,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             @Override
             public void onInit(int status) {
                 if(status != TextToSpeech.ERROR) {
-//                    Log.d("Locale","Locale."+language_speech_status);
                     t1.setLanguage(Locale.UK);
                 }
             }
@@ -250,21 +215,16 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             @Override
             public void onClick(View v) {
                 final Dialog dialog = new Dialog(MainActivity.this);
-                // khởi tạo dialog
                 dialog.setContentView(R.layout.dialog_resource_language);
-                // xét layout cho dialog
                 dialog.setTitle("Select Language");
                 ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
                 ArrayList<Language> listLanguage=new ArrayList<Language>();
                 listLanguage=languageDBHelper.getLanguageList();
-
-
                 ListLanguageAdapter adapterResource =
                         new ListLanguageAdapter(MainActivity.this,
                                 android.R.layout.simple_list_item_1, listLanguage);
 
                 dialog_ListView.setAdapter(adapterResource);
-                // xét tiêu đề cho dialog
 
                 dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
@@ -284,8 +244,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             }
                             flagFrom=flagTo;
                         }
-
-
                             if (title.length() > 10) {
                                 String truncated = title.subSequence(0, 12).toString().concat("...");
                                 Log.d("Truncat",truncated);
@@ -299,11 +257,9 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                         flagIconTo.setImageResource(resID);
                         targetLanguageCode=String.valueOf(obj.getLanguageCode());
                         languageTo=obj.getLanguageName();
-
                         Log.d("Long",targetLanguageCode+"-----"+speechCode);
                         dialog.dismiss();
                     }});
-                // bắt sự kiện cho nút đăng kí
                 dialog.show();
             }
         });
@@ -323,10 +279,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
-//        final ArrayList<String> results = savedInstanceState == null ? null :
-//                savedInstanceState.getStringArrayList(STATE_RESULTS);
-//        mAdapter = new ResultAdapter(results);
         translateDBHelper = new TranslateDBHelper(this);
         languageDBHelper=new LanguageDBHelper(this);
         array_list = translateDBHelper.getAllTranslates();
@@ -391,110 +343,25 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
             @Override
             public void onLongClick(View view, int position) {
-                Toast.makeText(MainActivity.this, "Long press on position :"+position,
-                        Toast.LENGTH_LONG).show();
             }
         }));
-
-
-
-
-        Log.d("LOG----------------","hello");
 
     }
     @Override
 
     public boolean onOptionsItemSelected(final MenuItem item){
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent setting = new Intent(this, SettingActivity.class);
             startActivity(setting);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
         }
-//        if (id == R.id.resourelanguege) {
-//            final Dialog dialog = new Dialog(MainActivity.this);
-//            // khởi tạo dialog
-//            dialog.setContentView(R.layout.dialog_resource_language);
-//            // xét layout cho dialog
-//            dialog.setTitle("Select Language");
-//            ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
-//            ArrayList<Language> listLanguage=new ArrayList<Language>();
-//            listLanguage=languageDBHelper.getLanguageList();
-//
-//
-//            ListLanguageAdapter adapterResource =
-//                    new ListLanguageAdapter(MainActivity.this,
-//                            android.R.layout.simple_list_item_1, listLanguage);
-//
-//            dialog_ListView.setAdapter(adapterResource);
-//            // xét tiêu đề cho dialog
-//
-//            dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-//
-//                @Override
-//                public void onItemClick(AdapterView<?> adapterView, View view,
-//                                        int position, long id) {
-//                    Language obj = (Language) (adapterView.getItemAtPosition(position));
-//                    item.setTitle(String.valueOf(obj.getLanguageName()));
-//                    resourceLanguageCode=String.valueOf(obj.getLanguageCode());
-//                    speechCode=String.valueOf(obj.getSpeechCode());
-//                    Log.d("Long",resourceLanguageCode+"-----"+speechCode);
-//                    dialog.dismiss();
-//                }});
-//            // bắt sự kiện cho nút đăng kí
-//            dialog.show();
-//        }
-//        if (id == R.id.targelanguage) {
-//            final Dialog  dialog = new Dialog(MainActivity.this);
-//            // khởi tạo dialog
-//            dialog.setContentView(R.layout.dialog_resource_language);
-//            // xét layout cho dialog
-//            dialog.setTitle("Select Language");
-//            ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
-//            ArrayList<Language> listLanguage=new ArrayList<Language>();
-//            listLanguage=languageDBHelper.getLanguageList();
-//
-//
-//            ListLanguageAdapter adapterResource =
-//                    new ListLanguageAdapter(MainActivity.this,
-//                            android.R.layout.simple_list_item_1, listLanguage);
-//
-//            dialog_ListView.setAdapter(adapterResource);
-//            // xét tiêu đề cho dialog
-//
-//
-//            // bắt sự kiện cho nút đăng kí
-//            dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-//
-//                @Override
-//                public void onItemClick(AdapterView<?> adapterView, View view,
-//                                        int position, long id) {
-//                    Language obj = (Language) (adapterView.getItemAtPosition(position));
-//                    item.setTitle(String.valueOf(obj.getLanguageName()));
-//
-//                    targetLanguageCode=String.valueOf(obj.getLanguageCode());
-//                    Log.d("Long",targetLanguageCode);
-//                    dialog.dismiss();
-//                }});
-//            // bắt sự kiện cho nút đăng kí
-//            dialog.show();
-//        }
         if(id==R.id.action_deleteAllTranslates){
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-
-            // Setting Dialog Title
             alertDialog.setTitle("Confirm Delete...");
-
-            // Setting Dialog Message
             alertDialog.setMessage("Are you sure you want delete this?");
-
-            // Setting Icon to Dialog
             alertDialog.setIcon(R.drawable.delete);
-
-            // Setting Positive "Yes" Button
             alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog,int which) {
                     translateDBHelper.deleteAllTranslates();
@@ -508,8 +375,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     mRecyclerView.setItemAnimator(itemAnimator);
                 }
             });
-
-            // Setting Negative "NO" Button
             alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -535,7 +400,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -546,7 +410,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         intent.putExtra("speechCode", speechCode);
         // Prepare Cloud Speech API
         bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
-
         // Start listening to voices
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -558,20 +421,16 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},
                     REQUEST_RECORD_AUDIO_PERMISSION);
         }
-        // Start listening to voices
 
     }
     @Override
     protected void onStop() {
         // Stop listening to voice
         stopVoiceRecorder();
-
         // Stop Cloud Speech API
         mSpeechService.removeListener(mSpeechServiceListener);
         unbindService(mServiceConnection);
         mSpeechService = null;
-
-
         super.onStop();
     }
 
@@ -612,14 +471,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                 .show(getSupportFragmentManager(), FRAGMENT_MESSAGE_DIALOG);
     }
 
-//    private void showStatus(final boolean hearingVoice) {
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                mStatus.setTextColor(hearingVoice ? mColorHearing : mColorNotHearing);
-//            }
-//        });
-//    }
 
     @Override
     public void onMessageDialogDismissed() {
@@ -632,16 +483,13 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                 @Override
                 public void onSpeechRecognized(final String text, final boolean isFinal) {
                     if (isFinal) {
-
                         mVoiceRecorder.dismiss();
                     }
                     if (!TextUtils.isEmpty(text)) {
-                        Log.d("o dayyyyyyyyy","vao");
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (isFinal) {
-                                    Log.d("o dayyyyyyyyy","vao");
                                     Call<TranslateResponse> callAccept = WebserviceUtil.getInstance().translate(API_KEY,text,resourceLanguageCode,targetLanguageCode);
                                     callAccept.enqueue(new Callback<TranslateResponse>() {
                                         @Override
@@ -679,9 +527,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                         }
                                     });
 
-
                                 } else {
-//                                    mText.setText(text);
                                 }
                             }
                         });

@@ -68,7 +68,7 @@ public class TranslateDBHelper{
     }
 
     public boolean insertTranslate(Translate translate) {
-        String qr = "insert into translates (LANGCODE_FROM,LANGCODE_TO,TEXT_FROM,TEXT_TO,FLAG_FROM,FLAG_TO,LANGUAGE_FROM,LANGUAGE_TO) values('"+translate.getLangcode_from()+"', '"+translate.getLangcode_to()+"', '"+translate.getText_from()+"', '"+translate.getText_to()+"','"+translate.getFlag_from()+"','"+translate.getFlag_to()+"', '"+translate.getLanguage_from()+"', '"+translate.getLanguage_to()+"')";
+        String qr = "insert into translates (LANGCODE_FROM,LANGCODE_TO,TEXT_FROM,TEXT_TO,FLAG_FROM,FLAG_TO,LANGUAGE_FROM,LANGUAGE_TO) values('"+translate.getLangcode_from()+"', '"+translate.getLangcode_to()+"', '"+translate.getText_from().replace("'","''").substring(0,1).toUpperCase()+translate.getText_from().replace("'","''").substring(1)+"', '"+translate.getText_to()+"','"+translate.getFlag_from()+"','"+translate.getFlag_to()+"', '"+translate.getLanguage_from()+"', '"+translate.getLanguage_to()+"')";
         Log.d("sql",qr);
         SQLiteDatabase db = dbHelper.openDatabase();
         SQLiteStatement statement = db.compileStatement(qr);
