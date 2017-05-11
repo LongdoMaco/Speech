@@ -19,11 +19,12 @@ package com.google.cloud.android.longdo;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -50,6 +51,7 @@ import android.widget.Toast;
 
 import com.google.cloud.android.longdo.adapters.ListLanguageAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter;
+import com.google.cloud.android.longdo.adapters.TranslateAdapter2;
 import com.google.cloud.android.longdo.helps.CustomRVItemTouchListener;
 import com.google.cloud.android.longdo.helps.RecyclerViewItemClickListener;
 import com.google.cloud.android.longdo.models.Language;
@@ -66,6 +68,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.google.cloud.android.longdo.SettingActivity.MyPREFERENCES;
+
 
 public class MainActivity extends AppCompatActivity implements MessageDialogFragment.Listener {
 
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private VoiceRecorder mVoiceRecorder;
     private TranslateDBHelper translateDBHelper;
     private LanguageDBHelper languageDBHelper;
+    SharedPreferences sharedpreferences;
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
 
         @Override
@@ -106,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private RecyclerView mRecyclerView;
     String resourceLanguageCode="en",targetLanguageCode="ja",speechCode="en-US",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
     TranslateAdapter adapter;
+    TranslateAdapter2 adapter2;
     ArrayList<Translate> array_list;
     private TextView targetLanguage,sourceLanguage;
     private ImageView flagIconFrom,flagIconTo;
@@ -136,8 +142,9 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
         toolbar.setTitle("");
-        final Resources resources = getResources();
-        final Resources.Theme theme = getTheme();
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
+
         flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
         flagIconFrom.setBackgroundResource(R.drawable.us);
         flagIconTo=(ImageView) findViewById(R.id.toolBarFlagTo);
@@ -287,76 +294,74 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         if (array_list!=null){
             mRecyclerView.setBackground(null);
         }
-        adapter = new TranslateAdapter(array_list, getApplication());
-        mRecyclerView.setAdapter(adapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(this,
-                mRecyclerView, new RecyclerViewItemClickListener() {
-            @Override
-            public void onClick(View view, final int position) {
-                Log.d("ID",String.valueOf(array_list.get(position).getId()));
-                Translate translate2=translateDBHelper.getTranslate(array_list.get(position).getId());
+        Log.d("Speakout",String.valueOf(autoSpeak));
+        if(autoSpeak){
+        adapter2= new TranslateAdapter2(array_list, getApplication());
+            mRecyclerView.setAdapter(adapter2);
+            Log.d("Speakout","adapter2");
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(this,
+                    mRecyclerView, new RecyclerViewItemClickListener() {
+                @Override
+                public void onClick(View view, final int position) {
+                    Log.d("ID",String.valueOf(array_list.get(position).getId()));
+                    Translate translate2=translateDBHelper.getTranslate(array_list.get(position).getId());
 
-                String textTo=translate2.getText_to();
-                final String language_speech_status=translateDBHelper.getSpeechCodeFromId(array_list.get(position).getId()).toUpperCase();
-//                if("US".equals(language_speech_status))
-//                {
-//                    t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-//                        @Override
-//                        public void onInit(int status) {
-//                            if(status != TextToSpeech.ERROR) {
-//                                t1.setLanguage(Locale.US);
-//                            }
-//                        }
-//                   });
-//                }
-//                else if("UK".equals(language_speech_status)){
-//                    t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-//                        @Override
-//                        public void onInit(int status) {
-//                            if(status != TextToSpeech.ERROR) {
-//                                t1.setLanguage(Locale.UK);
-//                            }
-//                        }
-//                    });
-//                }
-//                else if("FRENCH".equals(language_speech_status))
-//                    t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-//                        @Override
-//                        public void onInit(int status) {
-//                            if(status != TextToSpeech.ERROR) {
-//                                t1.setLanguage(Locale.FRENCH);
-//                            }
-//                        }
-//                    });
-//                else if("GERMAN".equals(language_speech_status)){
-//                    t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-//                        @Override
-//                        public void onInit(int status) {
-//                            if(status != TextToSpeech.ERROR) {
-//                                t1.setLanguage(Locale.GERMAN);
-//                            }
-//                        }
-//                    });
-//                }
+                    String textTo=translate2.getText_to();
+                    final String language_speech_status=translateDBHelper.getSpeechCodeFromId(array_list.get(position).getId()).toUpperCase();
                     t1.speak(textTo, TextToSpeech.QUEUE_FLUSH, null);
 
-            }
+                }
 
-            @Override
-            public void onLongClick(View view, int position) {
-                int idTranslate=array_list.get(position).getId();
-                translateDBHelper.deleteTranslate(idTranslate);
-                mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
-                mRecyclerView.invalidate();
-                mRecyclerView.smoothScrollToPosition(0);
-                mRecyclerView.setBackground(null);
-                RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-                itemAnimator.setAddDuration(1000);
-                itemAnimator.setRemoveDuration(1000);
-                mRecyclerView.setItemAnimator(itemAnimator);
-            }
-        }));
+                @Override
+                public void onLongClick(View view, int position) {
+                    int idTranslate=array_list.get(position).getId();
+                    translateDBHelper.deleteTranslate(idTranslate);
+                    mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+                    mRecyclerView.invalidate();
+                    mRecyclerView.smoothScrollToPosition(0);
+                    mRecyclerView.setBackground(null);
+                    RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+                    itemAnimator.setAddDuration(1000);
+                    itemAnimator.setRemoveDuration(1000);
+                    mRecyclerView.setItemAnimator(itemAnimator);
+                }
+            }));
+        }
+        else {
+        adapter = new TranslateAdapter(array_list, getApplication());
+            mRecyclerView.setAdapter(adapter);
+            Log.d("Speakout","adapter");
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(this,
+                    mRecyclerView, new RecyclerViewItemClickListener() {
+                @Override
+                public void onClick(View view, final int position) {
+                    Log.d("ID",String.valueOf(array_list.get(position).getId()));
+                    Translate translate2=translateDBHelper.getTranslate(array_list.get(position).getId());
+
+                    String textTo=translate2.getText_to();
+                    final String language_speech_status=translateDBHelper.getSpeechCodeFromId(array_list.get(position).getId()).toUpperCase();
+                    t1.speak(textTo, TextToSpeech.QUEUE_FLUSH, null);
+
+                }
+
+                @Override
+                public void onLongClick(View view, int position) {
+                    int idTranslate=array_list.get(position).getId();
+                    translateDBHelper.deleteTranslate(idTranslate);
+                    mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+                    mRecyclerView.invalidate();
+                    mRecyclerView.smoothScrollToPosition(0);
+                    mRecyclerView.setBackground(null);
+                    RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+                    itemAnimator.setAddDuration(1000);
+                    itemAnimator.setRemoveDuration(1000);
+                    mRecyclerView.setItemAnimator(itemAnimator);
+                }
+            }));
+        }
+
 
     }
     @Override

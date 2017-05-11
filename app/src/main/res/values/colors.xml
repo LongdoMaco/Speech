@@ -181,4 +181,14 @@
     <color name="teal800">#1565C0</color>
     <color name="teal900">#0D47A1</color>
     <color name="teal200">#64B5F6</color>
+    <color name="bg_dif">#4DB6AC</color>
+    <color name="bg_dif_select">#80CBC4</color>
+    <color name="bg_grey">#66BB6A</color>
+    <color name="bg_grey_select">#81C784</color>
+    <color name="bg_blue">#64B5F6</color>
+    <color name="bg_blue_select">#42A5F5</color>
+    <color name="bg_indigo">#9FA8DA</color>
+    <color name="bg_indio_select">#C5CAE9</color>
+    <color name="bg_bg">#B0BEC5</color>
+    <color name="bg_bg_select">#CFD8DC</color>
 </resources>

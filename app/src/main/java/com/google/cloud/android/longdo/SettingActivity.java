@@ -9,7 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.cloud.android.longdo.sqlites.TranslateDBHelper;
@@ -22,7 +24,8 @@ public class SettingActivity extends AppCompatActivity {
     TextView clearTranslateTextView,valueSeekBarSpeed;
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
-
+    private Switch autoSpeakSwitch,autoSetBackgroundSwitch;
+    private boolean autoSpeak=false,autoSetBG=false;
 
 
     @Override
@@ -37,6 +40,24 @@ public class SettingActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setTitle("Settings");
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
+        autoSpeakSwitch = (Switch) findViewById(R.id.autoSpeakSwitch);
+        autoSpeakSwitch.setChecked(autoSpeak);
+        autoSpeakSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor1 = sharedpreferences.edit();
+                if(isChecked){
+                    editor1.putBoolean("autoSpeak",true);
+                }else{
+                    editor1.putBoolean("autoSpeak",false);
+                }
+                editor1.commit();
+            }
+        });
+        SharedPreferences.Editor editor2 = sharedpreferences.edit();
+        editor2.putBoolean("autoSpeak",autoSpeak);
+
         valueSeekBarSpeed=(TextView) findViewById(R.id.valueSeekBarSpeed);
         translateDBHelper = new TranslateDBHelper(this);
         voiceSpeedSeekBar=(SeekBar)findViewById(R.id.voiceSpeedSeekBar);
