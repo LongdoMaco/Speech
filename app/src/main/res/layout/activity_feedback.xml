@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="20px">
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="We would love to hear your comments about my product. Send me your thoughts."
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="30dp"
+        android:textColor="#000"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Many thanks"
+        android:textColor="#000"
+        android:textSize="30dp"
+ />
+    <Button
+        android:id="@+id/sendEmail"
+        android:layout_marginTop="25px"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Feedback Here"/>
+
+</LinearLayout>

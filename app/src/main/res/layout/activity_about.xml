@@ -16,6 +16,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/teal800"
+            app:titleTextColor="@color/white"
+            app:subtitleTextColor="@color/white"
             app:popupTheme="@style/AppTheme" />
 
     </android.support.design.widget.AppBarLayout>
@@ -46,7 +48,7 @@
         android:layout_below="@+id/title"
         android:paddingLeft="20px"
         android:paddingTop="20px"
-        android:text="Thực hiện: Đỗ Long - Sinh viên Khoa Công nghệ thông tin- Đại Học Bách Khoa - Đại Học Đà Nẵng"
+        android:text="Thực hiện: Đỗ Long - Sinh viên Khoa Công nghệ thông tin - Đại Học Bách Khoa - Đại Học Đà Nẵng"
         android:textAlignment="gravity"
         android:textColor="@color/Black"
         android:textSize="18sp" />

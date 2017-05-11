@@ -41,15 +41,15 @@
     <style name="MyActionBar.TitleTextStyle"
         parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">#F0F</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">24dip</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="MyActionBar.MenuTextStyle"
         parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">#F0F</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">24dip</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 </resources>

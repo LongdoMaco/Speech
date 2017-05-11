@@ -46,6 +46,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.cloud.android.longdo.adapters.ListLanguageAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         @Override
         public void onVoiceStart() {
             if (mSpeechService != null) {
+                Log.d("GetSamplerate",String.valueOf(mVoiceRecorder.getSampleRate()));
                 mSpeechService.startRecognizing(mVoiceRecorder.getSampleRate());
             }
         }
@@ -343,6 +345,16 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
             @Override
             public void onLongClick(View view, int position) {
+                int idTranslate=array_list.get(position).getId();
+                translateDBHelper.deleteTranslate(idTranslate);
+                mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+                mRecyclerView.invalidate();
+                mRecyclerView.smoothScrollToPosition(0);
+                mRecyclerView.setBackground(null);
+                RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+                itemAnimator.setAddDuration(1000);
+                itemAnimator.setRemoveDuration(1000);
+                mRecyclerView.setItemAnimator(itemAnimator);
             }
         }));
 
@@ -393,6 +405,11 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("market://details?id=com.google.android.apps.translate"));
             startActivity(intent);
+        }
+        if(id==R.id.action_feedback){
+            Intent feedbackActivity = new Intent(this,FeedbackActivity.class);
+            startActivity(feedbackActivity);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         }
 
         return super.onOptionsItemSelected(item);
@@ -541,6 +558,25 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             t1.shutdown();
         }
         super.onPause();
+    }
+    protected void sendEmail() {
+        Log.i("Send email", "");
+        String[] TO = {"dolongbkdn1411@gmail.com"};
+        String[] CC = {""};
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+        emailIntent.putExtra(Intent.EXTRA_CC, CC);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+            finish();
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(MainActivity.this, "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

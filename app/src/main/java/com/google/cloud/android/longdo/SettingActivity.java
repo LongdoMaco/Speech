@@ -1,6 +1,8 @@
 package com.google.cloud.android.longdo;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -9,15 +11,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.cloud.android.longdo.sqlites.TranslateDBHelper;
 
 public class SettingActivity extends AppCompatActivity {
 
+    private static final int[] SAMPLE_RATE_CANDIDATES = new int[]{11025, 16000, 22050, 44100};
     private TranslateDBHelper translateDBHelper;
     SeekBar voiceSpeedSeekBar,voicePitchSeekBar;
-    TextView clearTranslateTextView;
+    TextView clearTranslateTextView,valueSeekBarSpeed;
+    SharedPreferences sharedpreferences;
+    public static final String MyPREFERENCES = "MyPrefs" ;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,22 +36,41 @@ public class SettingActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setTitle("Settings");
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        valueSeekBarSpeed=(TextView) findViewById(R.id.valueSeekBarSpeed);
         translateDBHelper = new TranslateDBHelper(this);
         voiceSpeedSeekBar=(SeekBar)findViewById(R.id.voiceSpeedSeekBar);
+        voiceSpeedSeekBar.setProgress(2);
         voiceSpeedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int speedVoiceIndex = 1;
+            int speedVoice=16000;
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Toast.makeText(getApplicationContext(),"seekbar progress: "+progress, Toast.LENGTH_SHORT).show();
+                speedVoiceIndex = progress;
+                if(progress==1){
+                    speedVoice=11025;
+                }else if (progress==2){
+                    speedVoice=16000;
+                }else if (progress==3){
+                    speedVoice=22050;
+                }
+                else speedVoice=44100;
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putInt("SpeedVoice", speedVoice);
+                editor.commit();
+
+//                valueSeekBarSpeed.setText(String.valueOf(speedVoice)+"Hz");
+
+
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                Toast.makeText(getApplicationContext(),"seekbar touch started!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                Toast.makeText(getApplicationContext(),"seekbar touch stopped!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -71,24 +96,14 @@ public class SettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(SettingActivity.this);
-
-                // Setting Dialog Title
                 alertDialog.setTitle("Confirm Delete...");
-
-                // Setting Dialog Message
                 alertDialog.setMessage("Are you sure you want delete this?");
-
-                // Setting Icon to Dialog
                 alertDialog.setIcon(R.drawable.delete);
-
-                // Setting Positive "Yes" Button
                 alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int which) {
                         translateDBHelper.deleteAllTranslates();
                     }
                 });
-
-                // Setting Negative "NO" Button
                 alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -98,6 +113,7 @@ public class SettingActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
+
 
     }
 
