@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/White"
     tools:context="com.google.cloud.android.longdo.SettingActivity">
     <android.support.design.widget.AppBarLayout
         android:id="@+id/settingsToolBar"
@@ -28,5 +29,5 @@
 
     <include layout="@layout/store_layout"></include>
 
-    <include layout="@layout/anothersetting_layout"></include>
+    <include layout="@layout/advance_layout"></include>
 </LinearLayout>

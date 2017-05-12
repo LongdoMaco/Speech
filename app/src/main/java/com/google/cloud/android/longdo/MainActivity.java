@@ -47,7 +47,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.cloud.android.longdo.adapters.ListLanguageAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter;
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     private FloatingActionButton fabListen;
     private RecyclerView mRecyclerView;
-    String resourceLanguageCode="en",targetLanguageCode="ja",speechCode="en-US",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
+    String resourceLanguageCode="en",targetLanguageCode="ja",speechCodeSource="en-US",speechCodeTarget="ja-JP",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
     TranslateAdapter adapter;
     TranslateAdapter2 adapter2;
     ArrayList<Translate> array_list;
@@ -182,6 +181,9 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                         }
 
                         flagTo=flagFrom;
+                        languageTo=languageFrom;
+                        int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+                        flagIconTo.setImageResource(resID);
 
                     }
                         if (title.length() > 10) {
@@ -196,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     flagIconFrom.setImageResource(resID);
                     resourceLanguageCode=String.valueOf(obj.getLanguageCode());
                     languageFrom=obj.getLanguageName();
-                    speechCode=String.valueOf(obj.getSpeechCode());
-                    Log.d("Long",resourceLanguageCode+"-----"+speechCode);
+                    speechCodeSource=String.valueOf(obj.getSpeechCode());
+                    Log.d("Long",resourceLanguageCode+"-----"+speechCodeSource);
                     dialog.dismiss();
                 }});
             dialog.show();
@@ -246,6 +248,12 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                 sourceLanguage.setText(targetLanguage.getText());
                             }
                             flagFrom=flagTo;
+                            languageFrom=languageTo;
+                            Log.d("Long",speechCodeTarget+"-----"+speechCodeTarget);
+                            speechCodeSource=speechCodeTarget;
+                            int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+                            flagIconFrom.setImageResource(resID);
+
                         }
                             if (title.length() > 10) {
                                 String truncated = title.subSequence(0, 12).toString().concat("...");
@@ -259,8 +267,9 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                         int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
                         flagIconTo.setImageResource(resID);
                         targetLanguageCode=String.valueOf(obj.getLanguageCode());
+                        speechCodeTarget=String.valueOf(obj.getSpeechCode());
                         languageTo=obj.getLanguageName();
-                        Log.d("Long",targetLanguageCode+"-----"+speechCode);
+                        Log.d("Long",targetLanguageCode+"-----"+speechCodeSource);
                         dialog.dismiss();
                     }});
                 dialog.show();
@@ -272,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplication(), SpeechService.class);
-                intent.putExtra("speechCode", speechCode);
+                intent.putExtra("speechCode", speechCodeSource);
                 // Prepare Cloud Speech API
                 bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
                 Log.d("Log","Listening");
@@ -422,6 +431,10 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     @Override
     protected void onStart() {
         super.onStart();
+        Intent intent = new Intent(getApplication(), SpeechService.class);
+        intent.putExtra("speechCode", speechCodeSource);
+        // Prepare Cloud Speech API
+        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
         // Start listening to voices
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -553,25 +566,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             t1.shutdown();
         }
         super.onPause();
-    }
-    protected void sendEmail() {
-        Log.i("Send email", "");
-        String[] TO = {"dolongbkdn1411@gmail.com"};
-        String[] CC = {""};
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("text/plain");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
-        emailIntent.putExtra(Intent.EXTRA_CC, CC);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
-
-        try {
-            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-            finish();
-        } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(MainActivity.this, "There is no email client installed.", Toast.LENGTH_SHORT).show();
-        }
     }
 
 }

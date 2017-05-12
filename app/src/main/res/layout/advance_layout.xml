@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -13,45 +12,41 @@
         android:paddingBottom="14px"
         android:paddingLeft="10px"
         android:paddingTop="14px"
-        android:text="STORE"
+        android:text="ADVANCE SETTING"
         android:textAlignment="gravity"
-        android:textColor="@color/half_black"
         android:background="@color/background"
+        android:textColor="@color/half_black"
         android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/clearTranslateTextView"
-        android:layout_width="match_parent"
-        android:layout_weight="0.02"
-        android:paddingBottom="20px"
-        android:paddingLeft="30px"
-        android:paddingTop="20px"
-        android:text="Clear Translate"
-        android:textColor="@color/Black"
-        android:textSize="14sp"
-        android:layout_height="wrap_content"
-        />
-    <View
-        android:layout_height="1dp"
-        android:layout_width="match_parent"
-        android:background="@color/background">
-
-    </View>
-    <TextView
+    <Switch
+        android:id="@+id/autoSpeakSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_toRightOf="@+id/imageView"
-        android:layout_weight="0.02"
-        android:paddingBottom="20px"
-        android:paddingLeft="30px"
-        android:paddingTop="20px"
-        android:text="Clear Cache"
-        android:textColor="@color/Black"
-        android:textSize="14sp" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:paddingTop="40px"
+        android:paddingLeft="20px"
+        android:paddingBottom="40px"
+        android:text="Automatic Speak Result" />
+
     <View
         android:layout_height="1dp"
         android:layout_width="match_parent"
         android:background="@color/background"></View>
 
-    </LinearLayout>
+        <Switch
+            android:id="@+id/autoSetBackgroundSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:paddingTop="40px"
+            android:paddingLeft="20px"
+            android:paddingBottom="40px"
+            android:text="Change Background" />
+
+    <View
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:background="@color/background"></View>
+
+</LinearLayout>

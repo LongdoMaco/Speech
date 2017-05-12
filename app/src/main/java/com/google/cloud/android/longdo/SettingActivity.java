@@ -58,7 +58,6 @@ public class SettingActivity extends AppCompatActivity {
         SharedPreferences.Editor editor2 = sharedpreferences.edit();
         editor2.putBoolean("autoSpeak",autoSpeak);
 
-        valueSeekBarSpeed=(TextView) findViewById(R.id.valueSeekBarSpeed);
         translateDBHelper = new TranslateDBHelper(this);
         voiceSpeedSeekBar=(SeekBar)findViewById(R.id.voiceSpeedSeekBar);
         voiceSpeedSeekBar.setProgress(2);
