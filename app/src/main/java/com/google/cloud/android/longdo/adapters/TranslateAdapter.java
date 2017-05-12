@@ -69,9 +69,9 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
         }
 
         if(position%2==0){
-            holder.relativeLayout.setBackgroundResource(R.drawable.background_blue);
+            holder.relativeLayout.setBackgroundResource(R.drawable.background_white);
         }else{
-            holder.relativeLayout.setBackgroundResource(R.drawable.background_grey);
+            holder.relativeLayout.setBackgroundResource(R.drawable.background_blue);
 
         }
         holder.language_from.setText(translateList.get(position).getLanguage_from());

@@ -25,8 +25,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.auth.Credentials;
@@ -49,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -178,19 +175,7 @@ public class SpeechService extends Service {
         mAccessTokenTask.execute();
     }
 
-    private String getDefaultLanguageCode() {
-        final Locale locale = Locale.getDefault();
-        final StringBuilder language = new StringBuilder(locale.getLanguage());
-        final String country = locale.getCountry();
-        if (!TextUtils.isEmpty(country)) {
-            language.append("-");
-            language.append(country);
-        }
-        Log.d("Default language",language.toString());
-        return language.toString();
-    }
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         speechCode = intent.getStringExtra("speechCode");

@@ -144,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         toolbar.setTitle("");
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
-
         flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
         flagIconFrom.setBackgroundResource(R.drawable.us);
         flagIconTo=(ImageView) findViewById(R.id.toolBarFlagTo);
@@ -198,11 +197,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     resourceLanguageCode=String.valueOf(obj.getLanguageCode());
                     languageFrom=obj.getLanguageName();
                     speechCode=String.valueOf(obj.getSpeechCode());
-
-                    Intent intent = new Intent(getApplication(), SpeechService.class);
-                    intent.putExtra("speechCode", speechCode);
-                    // Prepare Cloud Speech API
-                    bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
                     Log.d("Long",resourceLanguageCode+"-----"+speechCode);
                     dialog.dismiss();
                 }});
@@ -428,10 +422,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(getApplication(), SpeechService.class);
-        intent.putExtra("speechCode", speechCode);
-        // Prepare Cloud Speech API
-        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
         // Start listening to voices
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {

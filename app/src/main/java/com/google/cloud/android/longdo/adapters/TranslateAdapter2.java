@@ -70,7 +70,7 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
             if(position%5==0){
                 holder.relativeLayout.setBackgroundResource(R.drawable.background_blue);
             }else if(position%4==0){
-                holder.relativeLayout.setBackgroundResource(R.drawable.background_dif);
+                holder.relativeLayout.setBackgroundResource(R.drawable.background_white);
             }
             else if(position%3==0){
                 holder.relativeLayout.setBackgroundResource(R.drawable.background_bluegrey);
