@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private TranslateDBHelper translateDBHelper;
     private LanguageDBHelper languageDBHelper;
     SharedPreferences sharedpreferences;
+    SharedPreferences.Editor editor1;
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
 
         @Override
@@ -132,6 +133,46 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     };
 
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
+        boolean deleteAll=sharedpreferences.getBoolean("deleteAll", false);
+        Log.d("Delete",String.valueOf(deleteAll));
+        if(deleteAll){
+            translateDBHelper.deleteAllTranslates();
+            if(autoSpeak){
+                Log.d("KOchi","kochi");
+                mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
+            }
+            else {
+                mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+                Log.d("KOchi","sochi");
+            }
+            mRecyclerView.invalidate();
+            mRecyclerView.smoothScrollToPosition(0);
+            mRecyclerView.setBackgroundResource(R.drawable.backgroud_main);
+            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+            itemAnimator.setAddDuration(1000);
+            itemAnimator.setRemoveDuration(1000);
+            mRecyclerView.setItemAnimator(itemAnimator);
+            editor1.putBoolean("deleteAll",false);
+        }
+        if(autoSpeak){
+            adapter2= new TranslateAdapter2(array_list, getApplication());
+            mRecyclerView.setAdapter(adapter2);
+            Log.d("Speakout","adapter2");
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        }
+        else {
+            adapter = new TranslateAdapter(array_list, getApplication());
+            mRecyclerView.setAdapter(adapter);
+            Log.d("Speakout", "adapter");
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         getSupportActionBar().setTitle(null);
         toolbar.setTitle("");
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        editor1 = sharedpreferences.edit();
         boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
         flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
         flagIconFrom.setBackgroundResource(R.drawable.us);
@@ -284,6 +326,8 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                 intent.putExtra("speechCode", speechCodeSource);
                 // Prepare Cloud Speech API
                 bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+                startVoiceRecorder();
+
                 Log.d("Log","Listening");
                 fabListen.animate().scaleX(0).scaleY(0).start();
             }
@@ -320,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                 public void onLongClick(View view, int position) {
                     int idTranslate=array_list.get(position).getId();
                     translateDBHelper.deleteTranslate(idTranslate);
-                    mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+                    mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
                     mRecyclerView.invalidate();
                     mRecyclerView.smoothScrollToPosition(0);
                     mRecyclerView.setBackground(null);
@@ -438,7 +482,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         // Start listening to voices
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
-            startVoiceRecorder();
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.RECORD_AUDIO)) {
             showPermissionMessageDialog();
@@ -448,6 +491,8 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         }
 
     }
+
+
     @Override
     protected void onStop() {
         // Stop listening to voice
@@ -539,13 +584,13 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             itemAnimator.setRemoveDuration(1000);
                                             mRecyclerView.setItemAnimator(itemAnimator);
                                             fabListen.animate().scaleX(1).scaleY(1).start();
+                                            stopVoiceRecorder();
                                             mSpeechService.removeListener(mSpeechServiceListener);
                                             unbindService(mServiceConnection);
                                             mSpeechService = null;
                                             Log.d("service","stop");
 
                                         }
-
                                         @Override
                                         public void onFailure(Call<TranslateResponse> call, Throwable t) {
                                             Log.d("TAG", "onFailure: " + t.getMessage());

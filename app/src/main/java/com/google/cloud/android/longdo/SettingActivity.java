@@ -26,6 +26,7 @@ public class SettingActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs" ;
     private Switch autoSpeakSwitch,autoSetBackgroundSwitch;
     private boolean autoSpeak=false,autoSetBG=false;
+    SharedPreferences.Editor editor1;
 
 
     @Override
@@ -43,10 +44,11 @@ public class SettingActivity extends AppCompatActivity {
         boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
         autoSpeakSwitch = (Switch) findViewById(R.id.autoSpeakSwitch);
         autoSpeakSwitch.setChecked(autoSpeak);
+        editor1 = sharedpreferences.edit();
         autoSpeakSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SharedPreferences.Editor editor1 = sharedpreferences.edit();
+
                 if(isChecked){
                     editor1.putBoolean("autoSpeak",true);
                 }else{
@@ -121,7 +123,9 @@ public class SettingActivity extends AppCompatActivity {
                 alertDialog.setIcon(R.drawable.delete);
                 alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int which) {
-                        translateDBHelper.deleteAllTranslates();
+                        editor1.putBoolean("deleteAll",true);
+                        editor1.commit();
+
                     }
                 });
                 alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
