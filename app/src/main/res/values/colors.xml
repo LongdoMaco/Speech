@@ -187,8 +187,8 @@
     <color name="bg_grey_select">#81C784</color>
     <color name="bg_blue">#64B5F6</color>
     <color name="bg_blue_select">#42A5F5</color>
-    <color name="bg_indigo">#9FA8DA</color>
-    <color name="bg_indio_select">#C5CAE9</color>
+    <color name="bg_indigo">#00E676</color>
+    <color name="bg_indio_select">#00C853</color>
     <color name="bg_bg">#B39DDB</color>
-    <color name="bg_bg_select">#D1C4E9</color>
+    <color name="bg_bg_select">#B388FF</color>
 </resources>

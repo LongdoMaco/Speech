@@ -37,7 +37,7 @@
         android:background="@drawable/backgroud_main"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/spacing_small"
-        android:paddingTop="@dimen/spacing_small"
+        android:paddingTop="2dp"
         app:behavior_overlapTop="128dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
     <android.support.design.widget.FloatingActionButton

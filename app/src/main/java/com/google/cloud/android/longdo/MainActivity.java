@@ -47,12 +47,11 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.cloud.android.longdo.adapters.ListLanguageAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter2;
-import com.google.cloud.android.longdo.helps.CustomRVItemTouchListener;
-import com.google.cloud.android.longdo.helps.RecyclerViewItemClickListener;
 import com.google.cloud.android.longdo.models.Language;
 import com.google.cloud.android.longdo.models.Translate;
 import com.google.cloud.android.longdo.responses.TranslateResponse;
@@ -81,13 +80,27 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private LanguageDBHelper languageDBHelper;
     SharedPreferences sharedpreferences;
     SharedPreferences.Editor editor1;
+    int voiceSpeed;
+    private FloatingActionButton fabListen;
+    private RecyclerView mRecyclerView;
+    String resourceLanguageCode="en",targetLanguageCode="ja",speechCodeSource="en-US",speechCodeTarget="ja-JP",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
+    TranslateAdapter adapter;
+    TranslateAdapter2 adapter2;
+    ArrayList<Translate> array_list;
+    private TextView targetLanguage,sourceLanguage;
+    private ImageView flagIconFrom,flagIconTo;
+    TextToSpeech t1;
+
+
+
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
 
         @Override
         public void onVoiceStart() {
             if (mSpeechService != null) {
-                Log.d("GetSamplerate",String.valueOf(mVoiceRecorder.getSampleRate()));
-                mSpeechService.startRecognizing(mVoiceRecorder.getSampleRate());
+                voiceSpeed=sharedpreferences.getInt("SpeedVoice", 16000);
+                Log.d("GetSamplerate",String.valueOf(voiceSpeed));
+                mSpeechService.startRecognizing(voiceSpeed);
             }
         }
 
@@ -107,16 +120,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     };
 
-    private FloatingActionButton fabListen;
-    private RecyclerView mRecyclerView;
-    String resourceLanguageCode="en",targetLanguageCode="ja",speechCodeSource="en-US",speechCodeTarget="ja-JP",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
-    TranslateAdapter adapter;
-    TranslateAdapter2 adapter2;
-    ArrayList<Translate> array_list;
-    private TextView targetLanguage,sourceLanguage;
-    private ImageView flagIconFrom,flagIconTo;
 
-    TextToSpeech t1;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -137,39 +141,20 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     @Override
     protected void onResume(){
         super.onResume();
-        boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
-        boolean deleteAll=sharedpreferences.getBoolean("deleteAll", false);
-        Log.d("Delete",String.valueOf(deleteAll));
-        if(deleteAll){
-            translateDBHelper.deleteAllTranslates();
-            if(autoSpeak){
-                Log.d("KOchi","kochi");
-                mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
-            }
-            else {
-                mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
-                Log.d("KOchi","sochi");
-            }
-            mRecyclerView.invalidate();
-            mRecyclerView.smoothScrollToPosition(0);
-            mRecyclerView.setBackgroundResource(R.drawable.backgroud_main);
-            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-            itemAnimator.setAddDuration(1000);
-            itemAnimator.setRemoveDuration(1000);
-            mRecyclerView.setItemAnimator(itemAnimator);
-            editor1.putBoolean("deleteAll",false);
-        }
-        if(autoSpeak){
+        voiceSpeed=sharedpreferences.getInt("SpeedVoice", 16000);
+        boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
+        Log.d("Delete",String.valueOf(voiceSpeed));
+        if(autoBackground){
             adapter2= new TranslateAdapter2(array_list, getApplication());
             mRecyclerView.setAdapter(adapter2);
-            Log.d("Speakout","adapter2");
+            Log.d("autoBackground","adapter2");
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         }
         else {
             adapter = new TranslateAdapter(array_list, getApplication());
             mRecyclerView.setAdapter(adapter);
-            Log.d("Speakout", "adapter");
+            Log.d("autoBackground", "adapter");
         }
     }
 
@@ -184,69 +169,15 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         toolbar.setTitle("");
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         editor1 = sharedpreferences.edit();
-        boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
+        boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
         flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
         flagIconFrom.setBackgroundResource(R.drawable.us);
         flagIconTo=(ImageView) findViewById(R.id.toolBarFlagTo);
         flagIconTo.setBackgroundResource(R.drawable.jp);
         sourceLanguage=(TextView) findViewById(R.id.sourceLanguage);
-        sourceLanguage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Dialog dialog = new Dialog(MainActivity.this);
-            // khởi tạo dialog
-            dialog.setContentView(R.layout.dialog_resource_language);
-            // xét layout cho dialog
-            dialog.setTitle("Select Language");
-            ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
-            ArrayList<Language> listLanguage=new ArrayList<Language>();
-            listLanguage=languageDBHelper.getLanguageList();
-            ListLanguageAdapter adapterResource =
-                    new ListLanguageAdapter(MainActivity.this,
-                            android.R.layout.simple_list_item_1, listLanguage);
-            dialog_ListView.setAdapter(adapterResource);
-            dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view,
-                                        int position, long id) {
-                    Language obj = (Language) (adapterView.getItemAtPosition(position));
-                    String title = String.valueOf(obj.getLanguageName());
-                    if(String.valueOf(obj.getLanguageCode()).equals(targetLanguageCode)){
-                        targetLanguageCode=resourceLanguageCode;
-                        if (sourceLanguage.getText().length() > 10) {
-                            String truncated = sourceLanguage.getText().subSequence(0, 10).toString().concat("...");
-                            targetLanguage.setText(truncated);
-                        }
-                        else {
-                            targetLanguage.setText(sourceLanguage.getText());
-                        }
-
-                        flagTo=flagFrom;
-                        languageTo=languageFrom;
-                        int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
-                        flagIconTo.setImageResource(resID);
-
-                    }
-                        if (title.length() > 10) {
-                            String truncated = title.subSequence(0, 12).toString().concat("...");
-                            sourceLanguage.setText(truncated);
-                        }
-                        else {
-                            sourceLanguage.setText(title);
-                        }
-                    flagFrom=obj.getIcon();
-                    int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
-                    flagIconFrom.setImageResource(resID);
-                    resourceLanguageCode=String.valueOf(obj.getLanguageCode());
-                    languageFrom=obj.getLanguageName();
-                    speechCodeSource=String.valueOf(obj.getSpeechCode());
-                    Log.d("Long",resourceLanguageCode+"-----"+speechCodeSource);
-                    dialog.dismiss();
-                }});
-            dialog.show();
-            }
-        });
+        sourceLanguage.setOnClickListener(onClickListener);
+        targetLanguage=(TextView) findViewById(R.id.targetLanguage);
+        targetLanguage.setOnClickListener(onClickListener);
 
         t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -257,66 +188,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             }
         });
 
-        targetLanguage=(TextView) findViewById(R.id.targetLanguage);
-        targetLanguage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Dialog dialog = new Dialog(MainActivity.this);
-                dialog.setContentView(R.layout.dialog_resource_language);
-                dialog.setTitle("Select Language");
-                ListView dialog_ListView = (ListView)dialog.findViewById(R.id.dialoglist);
-                ArrayList<Language> listLanguage=new ArrayList<Language>();
-                listLanguage=languageDBHelper.getLanguageList();
-                ListLanguageAdapter adapterResource =
-                        new ListLanguageAdapter(MainActivity.this,
-                                android.R.layout.simple_list_item_1, listLanguage);
 
-                dialog_ListView.setAdapter(adapterResource);
-
-                dialog_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view,
-                                            int position, long id) {
-                        Language obj = (Language) (adapterView.getItemAtPosition(position));
-                        String title = String.valueOf(obj.getLanguageName());
-                        if(String.valueOf(obj.getLanguageCode()).equals(resourceLanguageCode)){
-                            resourceLanguageCode=targetLanguageCode;
-                            if (targetLanguage.getText().length() > 10) {
-                                String truncated = targetLanguage.getText().subSequence(0, 10).toString().concat("...");
-                                sourceLanguage.setText(truncated);
-                            }
-                            else {
-                                sourceLanguage.setText(targetLanguage.getText());
-                            }
-                            flagFrom=flagTo;
-                            languageFrom=languageTo;
-                            Log.d("Long",speechCodeTarget+"-----"+speechCodeTarget);
-                            speechCodeSource=speechCodeTarget;
-                            int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
-                            flagIconFrom.setImageResource(resID);
-
-                        }
-                            if (title.length() > 10) {
-                                String truncated = title.subSequence(0, 12).toString().concat("...");
-                                Log.d("Truncat",truncated);
-                                targetLanguage.setText(truncated);
-                            }
-                            else {
-                                targetLanguage.setText(title);
-                            }
-                        flagTo=obj.getIcon();
-                        int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
-                        flagIconTo.setImageResource(resID);
-                        targetLanguageCode=String.valueOf(obj.getLanguageCode());
-                        speechCodeTarget=String.valueOf(obj.getSpeechCode());
-                        languageTo=obj.getLanguageName();
-                        Log.d("Long",targetLanguageCode+"-----"+speechCodeSource);
-                        dialog.dismiss();
-                    }});
-                dialog.show();
-            }
-        });
 
         fabListen= (FloatingActionButton) findViewById(R.id.btnFloatingAction);
         fabListen.setOnClickListener(new View.OnClickListener() {
@@ -341,72 +213,18 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         if (array_list!=null){
             mRecyclerView.setBackground(null);
         }
-        Log.d("Speakout",String.valueOf(autoSpeak));
-        if(autoSpeak){
+        Log.d("autoBackground",String.valueOf(autoBackground));
+        if(autoBackground){
         adapter2= new TranslateAdapter2(array_list, getApplication());
             mRecyclerView.setAdapter(adapter2);
-            Log.d("Speakout","adapter2");
+            Log.d("autoBackground","adapter2");
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(this,
-                    mRecyclerView, new RecyclerViewItemClickListener() {
-                @Override
-                public void onClick(View view, final int position) {
-                    Log.d("ID",String.valueOf(array_list.get(position).getId()));
-                    Translate translate2=translateDBHelper.getTranslate(array_list.get(position).getId());
-
-                    String textTo=translate2.getText_to();
-                    final String language_speech_status=translateDBHelper.getSpeechCodeFromId(array_list.get(position).getId()).toUpperCase();
-                    t1.speak(textTo, TextToSpeech.QUEUE_FLUSH, null);
-
-                }
-
-                @Override
-                public void onLongClick(View view, int position) {
-                    int idTranslate=array_list.get(position).getId();
-                    translateDBHelper.deleteTranslate(idTranslate);
-                    mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
-                    mRecyclerView.invalidate();
-                    mRecyclerView.smoothScrollToPosition(0);
-                    mRecyclerView.setBackground(null);
-                    RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-                    itemAnimator.setAddDuration(1000);
-                    itemAnimator.setRemoveDuration(1000);
-                    mRecyclerView.setItemAnimator(itemAnimator);
-                }
-            }));
         }
         else {
         adapter = new TranslateAdapter(array_list, getApplication());
             mRecyclerView.setAdapter(adapter);
-            Log.d("Speakout","adapter");
+            Log.d("autoBackground","adapter");
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(this,
-                    mRecyclerView, new RecyclerViewItemClickListener() {
-                @Override
-                public void onClick(View view, final int position) {
-                    Log.d("ID",String.valueOf(array_list.get(position).getId()));
-                    Translate translate2=translateDBHelper.getTranslate(array_list.get(position).getId());
-
-                    String textTo=translate2.getText_to();
-                    final String language_speech_status=translateDBHelper.getSpeechCodeFromId(array_list.get(position).getId()).toUpperCase();
-                    t1.speak(textTo, TextToSpeech.QUEUE_FLUSH, null);
-
-                }
-
-                @Override
-                public void onLongClick(View view, int position) {
-                    int idTranslate=array_list.get(position).getId();
-                    translateDBHelper.deleteTranslate(idTranslate);
-                    mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
-                    mRecyclerView.invalidate();
-                    mRecyclerView.smoothScrollToPosition(0);
-                    mRecyclerView.setBackground(null);
-                    RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-                    itemAnimator.setAddDuration(1000);
-                    itemAnimator.setRemoveDuration(1000);
-                    mRecyclerView.setItemAnimator(itemAnimator);
-                }
-            }));
         }
 
 
@@ -575,14 +393,23 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             translate.setLanguage_from(languageFrom);
                                             translate.setLanguage_to(languageTo);
                                             translateDBHelper.insertTranslate(translate);
-                                            mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+
+                                            boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
+                                            Log.d("Delete",String.valueOf(voiceSpeed));
+                                            if(autoBackground){
+                                                mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
+                                                adapter2.insert(0,translate);
+
+                                            }
+                                            else {
+                                                mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
+                                                adapter2.insert(0,translate);
+                                            }
+
                                             mRecyclerView.invalidate();
                                             mRecyclerView.smoothScrollToPosition(0);
                                             mRecyclerView.setBackground(null);
-                                            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-                                            itemAnimator.setAddDuration(1000);
-                                            itemAnimator.setRemoveDuration(1000);
-                                            mRecyclerView.setItemAnimator(itemAnimator);
+
                                             fabListen.animate().scaleX(1).scaleY(1).start();
                                             stopVoiceRecorder();
                                             mSpeechService.removeListener(mSpeechServiceListener);
@@ -593,7 +420,9 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                         }
                                         @Override
                                         public void onFailure(Call<TranslateResponse> call, Throwable t) {
-                                            Log.d("TAG", "onFailure: " + t.getMessage());
+                                            Toast.makeText(MainActivity.this, "Something was wrong. Try it again!",
+                                                    Toast.LENGTH_LONG).show();
+                                            fabListen.animate().scaleX(1).scaleY(1).start();
                                         }
                                     });
 
@@ -612,5 +441,121 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         }
         super.onPause();
     }
+    View.OnClickListener onClickListener=new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()) {
+                case R.id.sourceLanguage:
+                    final Dialog dialogSoureLaguage = new Dialog(MainActivity.this);
+                    // khởi tạo dialog
+                    dialogSoureLaguage.setContentView(R.layout.dialog_resource_language);
+                    // xét layout cho dialog
+                    dialogSoureLaguage.setTitle("Select Language");
+                    ListView dialogSoureLaguage_ListView = (ListView)dialogSoureLaguage.findViewById(R.id.dialoglist);
+                    ArrayList<Language> listLanguageSource=new ArrayList<Language>();
+                    listLanguageSource=languageDBHelper.getLanguageList();
+                    ListLanguageAdapter adapterResource =
+                            new ListLanguageAdapter(MainActivity.this,
+                                    android.R.layout.simple_list_item_1, listLanguageSource);
+                    dialogSoureLaguage_ListView.setAdapter(adapterResource);
+                    dialogSoureLaguage_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view,
+                                                int position, long id) {
+                            Language obj = (Language) (adapterView.getItemAtPosition(position));
+                            String title = String.valueOf(obj.getLanguageName());
+                            if(String.valueOf(obj.getLanguageCode()).equals(targetLanguageCode)){
+                                targetLanguageCode=resourceLanguageCode;
+                                if (sourceLanguage.getText().length() > 10) {
+                                    String truncated = sourceLanguage.getText().subSequence(0, 10).toString().concat("...");
+                                    targetLanguage.setText(truncated);
+                                }
+                                else {
+                                    targetLanguage.setText(sourceLanguage.getText());
+                                }
+
+                                flagTo=flagFrom;
+                                languageTo=languageFrom;
+                                int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+                                flagIconTo.setImageResource(resID);
+
+                            }
+                            if (title.length() > 10) {
+                                String truncated = title.subSequence(0, 12).toString().concat("...");
+                                sourceLanguage.setText(truncated);
+                            }
+                            else {
+                                sourceLanguage.setText(title);
+                            }
+                            flagFrom=obj.getIcon();
+                            int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+                            flagIconFrom.setImageResource(resID);
+                            resourceLanguageCode=String.valueOf(obj.getLanguageCode());
+                            languageFrom=obj.getLanguageName();
+                            speechCodeSource=String.valueOf(obj.getSpeechCode());
+                            Log.d("Long",resourceLanguageCode+"-----"+speechCodeSource);
+                            dialogSoureLaguage.dismiss();
+                        }});
+                    dialogSoureLaguage.show();
+                    break;
+                case R.id.targetLanguage:
+                    final Dialog dialogTargetLanguage = new Dialog(MainActivity.this);
+                    dialogTargetLanguage.setContentView(R.layout.dialog_resource_language);
+                    dialogTargetLanguage.setTitle("Select Language");
+                    ListView dialogTargetLanguage_ListView = (ListView)dialogTargetLanguage.findViewById(R.id.dialoglist);
+                    ArrayList<Language> listLanguageTarget=new ArrayList<Language>();
+                    listLanguageTarget=languageDBHelper.getLanguageList();
+                    ListLanguageAdapter adapterTarget =
+                            new ListLanguageAdapter(MainActivity.this,
+                                    android.R.layout.simple_list_item_1, listLanguageTarget);
+
+                    dialogTargetLanguage_ListView.setAdapter(adapterTarget);
+
+                    dialogTargetLanguage_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view,
+                                                int position, long id) {
+                            Language obj = (Language) (adapterView.getItemAtPosition(position));
+                            String title = String.valueOf(obj.getLanguageName());
+                            if(String.valueOf(obj.getLanguageCode()).equals(resourceLanguageCode)){
+                                resourceLanguageCode=targetLanguageCode;
+                                if (targetLanguage.getText().length() > 10) {
+                                    String truncated = targetLanguage.getText().subSequence(0, 10).toString().concat("...");
+                                    sourceLanguage.setText(truncated);
+                                }
+                                else {
+                                    sourceLanguage.setText(targetLanguage.getText());
+                                }
+                                flagFrom=flagTo;
+                                languageFrom=languageTo;
+                                Log.d("Long",speechCodeTarget+"-----"+speechCodeTarget);
+                                speechCodeSource=speechCodeTarget;
+                                int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+                                flagIconFrom.setImageResource(resID);
+
+                            }
+                            if (title.length() > 10) {
+                                String truncated = title.subSequence(0, 12).toString().concat("...");
+                                Log.d("Truncat",truncated);
+                                targetLanguage.setText(truncated);
+                            }
+                            else {
+                                targetLanguage.setText(title);
+                            }
+                            flagTo=obj.getIcon();
+                            int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+                            flagIconTo.setImageResource(resID);
+                            targetLanguageCode=String.valueOf(obj.getLanguageCode());
+                            speechCodeTarget=String.valueOf(obj.getSpeechCode());
+                            languageTo=obj.getLanguageName();
+                            Log.d("Long",targetLanguageCode+"-----"+speechCodeSource);
+                            dialogTargetLanguage.dismiss();
+                        }});
+                    dialogTargetLanguage.show();
+                    break;
+            }
+        }
+    };
 }

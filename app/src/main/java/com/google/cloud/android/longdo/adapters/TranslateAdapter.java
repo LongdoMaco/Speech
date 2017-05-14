@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.google.cloud.android.longdo.R;
 import com.google.cloud.android.longdo.helps.ImageConverter;
 import com.google.cloud.android.longdo.models.Translate;
+import com.google.cloud.android.longdo.sqlites.TranslateDBHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
 
     private List<Translate> translateList = Collections.emptyList();
     Context context;
+    private TranslateDBHelper translateDBHelper;
 
     public TranslateAdapter(List<Translate> translateList, Context context) {
         this.translateList = translateList;
@@ -45,7 +48,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(View_Holder holder, int position) {
+    public void onBindViewHolder(View_Holder holder,final int position) {
         holder.title.setText(translateList.get(position).getText_from());
         holder.description.setText(translateList.get(position).getText_to());
 
@@ -76,6 +79,16 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
         }
         holder.language_from.setText(translateList.get(position).getLanguage_from());
         holder.language_to.setText(translateList.get(position).getLanguage_to());
+        holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Translate translate = translateList.get(position);
+                translateDBHelper.deleteTranslate(translate.getId());
+                translateList.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position,translateList.size());
+            }
+        });
 
     }
 
@@ -115,6 +128,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
         TextView description;
         ImageView flag_from,flag_to;
         LinearLayout relativeLayout;
+        ImageButton mRemoveButton;
 
         View_Holder(View itemView) {
             super(itemView);
@@ -126,6 +140,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
             flag_from = (ImageView) itemView.findViewById(flagFrom);
             flag_to = (ImageView) itemView.findViewById(flagTo);
             relativeLayout=(LinearLayout) itemView.findViewById(R.id.background);
+            mRemoveButton=(ImageButton) itemView.findViewById(R.id.ib_remove);
         }
     }
 }

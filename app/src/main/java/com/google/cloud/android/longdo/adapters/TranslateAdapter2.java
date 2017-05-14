@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.google.cloud.android.longdo.R;
 import com.google.cloud.android.longdo.helps.ImageConverter;
 import com.google.cloud.android.longdo.models.Translate;
+import com.google.cloud.android.longdo.sqlites.TranslateDBHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,13 +29,14 @@ import static com.google.cloud.android.longdo.R.id.flagTo;
  */
 
 public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.View_Holder> {
-
+        private TranslateDBHelper translateDBHelper;
         private List<Translate> translateList = Collections.emptyList();
         Context context;
 
     public TranslateAdapter2(List<Translate> translateList, Context context) {
             this.translateList = translateList;
             this.context = context;
+            translateDBHelper = new TranslateDBHelper(context.getApplicationContext());
         }
 
         @Override
@@ -44,7 +47,7 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
         }
 
         @Override
-        public void onBindViewHolder(View_Holder holder, int position) {
+        public void onBindViewHolder(View_Holder holder, final int position) {
             holder.title.setText(translateList.get(position).getText_from());
             holder.description.setText(translateList.get(position).getText_to());
 
@@ -73,17 +76,27 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                 holder.relativeLayout.setBackgroundResource(R.drawable.background_white);
             }
             else if(position%3==0){
-                holder.relativeLayout.setBackgroundResource(R.drawable.background_bluegrey);
+                holder.relativeLayout.setBackgroundResource(R.drawable.background_indigo);
 
             }
             else if(position%2==0){
-                holder.relativeLayout.setBackgroundResource(R.drawable.background_grey);
+                holder.relativeLayout.setBackgroundResource(R.drawable.background_bluegrey);
             }
             else {
-                holder.relativeLayout.setBackgroundResource(R.drawable.background_indigo);
+                holder.relativeLayout.setBackgroundResource(R.drawable.background_grey);
             }
             holder.language_from.setText(translateList.get(position).getLanguage_from());
             holder.language_to.setText(translateList.get(position).getLanguage_to());
+            holder.mRemoveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Translate translate = translateList.get(position);
+                    translateDBHelper.deleteTranslate(translate.getId());
+                    translateList.remove(position);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position,translateList.size());
+                }
+            });
 
         }
 
@@ -100,7 +113,6 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
             super.onAttachedToRecyclerView(recyclerView);
         }
 
-        // Insert a new item to the RecyclerView on a predefined position
     public void insert(int position, Translate data) {
         translateList.add(position, data);
         notifyItemInserted(position);
@@ -123,6 +135,7 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
         TextView description;
         ImageView flag_from,flag_to;
         LinearLayout relativeLayout;
+        ImageButton mRemoveButton;
 
         View_Holder(View itemView) {
             super(itemView);
@@ -134,6 +147,7 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
             flag_from = (ImageView) itemView.findViewById(flagFrom);
             flag_to = (ImageView) itemView.findViewById(flagTo);
             relativeLayout=(LinearLayout) itemView.findViewById(R.id.background);
+            mRemoveButton=(ImageButton) itemView.findViewById(R.id.ib_remove);
         }
     }
 }

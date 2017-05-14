@@ -21,12 +21,12 @@ public class SettingActivity extends AppCompatActivity {
     private static final int[] SAMPLE_RATE_CANDIDATES = new int[]{11025, 16000, 22050, 44100};
     private TranslateDBHelper translateDBHelper;
     SeekBar voiceSpeedSeekBar,voicePitchSeekBar;
-    TextView clearTranslateTextView,valueSeekBarSpeed;
+    TextView clearCache,valueSeekBarSpeed;
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
     private Switch autoSpeakSwitch,autoSetBackgroundSwitch;
-    private boolean autoSpeak=false,autoSetBG=false;
-    SharedPreferences.Editor editor1;
+    private boolean autoBackground=false;
+    SharedPreferences.Editor editor;
 
 
     @Override
@@ -41,28 +41,38 @@ public class SettingActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setTitle("Settings");
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        boolean autoSpeak=sharedpreferences.getBoolean("autoSpeak", false);
-        autoSpeakSwitch = (Switch) findViewById(R.id.autoSpeakSwitch);
-        autoSpeakSwitch.setChecked(autoSpeak);
-        editor1 = sharedpreferences.edit();
-        autoSpeakSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        final boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
+        autoSetBackgroundSwitch = (Switch) findViewById(R.id.autoSetBackgroundSwitch);
+        autoSetBackgroundSwitch.setChecked(autoBackground);
+        editor = sharedpreferences.edit();
+        autoSetBackgroundSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 if(isChecked){
-                    editor1.putBoolean("autoSpeak",true);
+                    editor.putBoolean("autoBackground",true);
                 }else{
-                    editor1.putBoolean("autoSpeak",false);
+                    editor.putBoolean("autoBackground",false);
                 }
-                editor1.commit();
+                editor.commit();
             }
         });
-        SharedPreferences.Editor editor2 = sharedpreferences.edit();
-        editor2.putBoolean("autoSpeak",autoSpeak);
+
+        int voiceSpeed=sharedpreferences.getInt("SpeedVoice", 1600);
+        int index=2;
+        if(voiceSpeed==11025){
+            index=1;
+        }else if(voiceSpeed==16000){
+            index=2;
+        }else  if(voiceSpeed==22050){
+            index=3;
+        }else {
+            index=4;
+        }
 
         translateDBHelper = new TranslateDBHelper(this);
         voiceSpeedSeekBar=(SeekBar)findViewById(R.id.voiceSpeedSeekBar);
-        voiceSpeedSeekBar.setProgress(2);
+        voiceSpeedSeekBar.setProgress(index);
         voiceSpeedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int speedVoiceIndex = 1;
             int speedVoice=16000;
@@ -78,7 +88,6 @@ public class SettingActivity extends AppCompatActivity {
                     speedVoice=22050;
                 }
                 else speedVoice=44100;
-                SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putInt("SpeedVoice", speedVoice);
                 editor.commit();
 
@@ -113,8 +122,8 @@ public class SettingActivity extends AppCompatActivity {
 
             }
         });
-        clearTranslateTextView=(TextView) findViewById(R.id.clearTranslateTextView);
-        clearTranslateTextView.setOnClickListener(new View.OnClickListener() {
+        clearCache=(TextView) findViewById(R.id.clearCache);
+        clearCache.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(SettingActivity.this);
@@ -123,8 +132,12 @@ public class SettingActivity extends AppCompatActivity {
                 alertDialog.setIcon(R.drawable.delete);
                 alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int which) {
-                        editor1.putBoolean("deleteAll",true);
-                        editor1.commit();
+                        editor.putBoolean("autoBackground",false);
+                        editor.putInt("SpeedVoice", 16000);
+                        editor.putBoolean("deleteAll",false);
+                        editor.commit();
+                       voiceSpeedSeekBar.setProgress(2);
+                        autoSetBackgroundSwitch.setChecked(false);
 
                     }
                 });
