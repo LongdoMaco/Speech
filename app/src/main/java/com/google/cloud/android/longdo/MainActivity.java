@@ -147,14 +147,10 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         if(autoBackground){
             adapter2= new TranslateAdapter2(array_list, getApplication());
             mRecyclerView.setAdapter(adapter2);
-            Log.d("autoBackground","adapter2");
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         }
         else {
             adapter = new TranslateAdapter(array_list, getApplication());
             mRecyclerView.setAdapter(adapter);
-            Log.d("autoBackground", "adapter");
         }
     }
 
@@ -403,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             }
                                             else {
                                                 mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
-                                                adapter2.insert(0,translate);
+                                                adapter.insert(0,translate);
                                             }
 
                                             mRecyclerView.invalidate();

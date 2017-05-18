@@ -39,9 +39,9 @@
                 android:textSize="15sp" />
             <ImageButton
                 android:id="@+id/ib_remove"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/delete"
+                android:layout_width="15px"
+                android:layout_height="15px"
+                android:src="@drawable/cross"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:background="@android:color/transparent"

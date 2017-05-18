@@ -38,6 +38,7 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
     public TranslateAdapter(List<Translate> translateList, Context context) {
         this.translateList = translateList;
         this.context = context;
+        translateDBHelper = new TranslateDBHelper(context.getApplicationContext());
     }
 
     @Override
