@@ -14,18 +14,13 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.google.cloud.android.longdo.sqlites.TranslateDBHelper;
-
 public class SettingActivity extends AppCompatActivity {
 
-    private static final int[] SAMPLE_RATE_CANDIDATES = new int[]{11025, 16000, 22050, 44100};
-    private TranslateDBHelper translateDBHelper;
     SeekBar voiceSpeedSeekBar,voicePitchSeekBar;
-    TextView clearCache,valueSeekBarSpeed;
+    TextView clearCache;
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
-    private Switch autoSpeakSwitch,autoSetBackgroundSwitch;
-    private boolean autoBackground=false;
+    private Switch autoSetBackgroundSwitch;
     SharedPreferences.Editor editor;
 
 
@@ -58,42 +53,41 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        int voiceSpeed=sharedpreferences.getInt("SpeedVoice", 1600);
+        float voiceSpeed=sharedpreferences.getFloat("SpeedVoice", 1f);
         int index=2;
-        if(voiceSpeed==11025){
+        if(voiceSpeed==0.5){
             index=1;
-        }else if(voiceSpeed==16000){
+        }else if(voiceSpeed==1f){
             index=2;
-        }else  if(voiceSpeed==22050){
+        }else  if(voiceSpeed==1.5f){
             index=3;
-        }else {
+        }else if(voiceSpeed==2f){
             index=4;
         }
+        else index=0;
 
-        translateDBHelper = new TranslateDBHelper(this);
         voiceSpeedSeekBar=(SeekBar)findViewById(R.id.voiceSpeedSeekBar);
         voiceSpeedSeekBar.setProgress(index);
         voiceSpeedSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int speedVoiceIndex = 1;
-            int speedVoice=16000;
+            float speedVoice=1f;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 speedVoiceIndex = progress;
                 if(progress==1){
-                    speedVoice=11025;
+                    speedVoice=0.5f;
                 }else if (progress==2){
-                    speedVoice=16000;
+                    speedVoice=1f;
                 }else if (progress==3){
-                    speedVoice=22050;
+                    speedVoice=1.5f;
                 }
-                else speedVoice=44100;
-                editor.putInt("SpeedVoice", speedVoice);
+                else if(progress==4){
+                    speedVoice=2f;
+                }
+                else speedVoice=0.2f;
+                editor.putFloat("SpeedVoice", speedVoice);
                 editor.commit();
-
-//                valueSeekBarSpeed.setText(String.valueOf(speedVoice)+"Hz");
-
-
             }
 
             @Override
@@ -104,12 +98,17 @@ public class SettingActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+        float voicePitch=sharedpreferences.getFloat("VoicePitch", 1f);
 
         voicePitchSeekBar=(SeekBar) findViewById(R.id.voicePitchSeekBar);
+        voicePitchSeekBar.setProgress((int) (voicePitch*10));
         voicePitchSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            float voicePitch=1f;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                voicePitch=progress*0.1f;
+                editor.putFloat("VoicePitch", voicePitch);
+                editor.commit();
             }
 
             @Override
@@ -133,10 +132,12 @@ public class SettingActivity extends AppCompatActivity {
                 alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int which) {
                         editor.putBoolean("autoBackground",false);
-                        editor.putInt("SpeedVoice", 16000);
+                        editor.putFloat("SpeedVoice", 1.0f);
+                        editor.putFloat("VoicePitch", 1.0f);
                         editor.putBoolean("deleteAll",false);
                         editor.commit();
-                       voiceSpeedSeekBar.setProgress(2);
+                        voiceSpeedSeekBar.setProgress(2);
+                        voicePitchSeekBar.setProgress(10);
                         autoSetBackgroundSwitch.setChecked(false);
 
                     }

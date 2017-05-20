@@ -90,7 +90,7 @@
             android:textAlignment="gravity"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
-            android:max="4"
+            android:max="10"
             android:layout_weight="0.83"></SeekBar>
         <ImageView
         android:layout_width="40dp"

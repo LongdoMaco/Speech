@@ -25,12 +25,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -52,6 +54,7 @@ import android.widget.Toast;
 import com.google.cloud.android.longdo.adapters.ListLanguageAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter;
 import com.google.cloud.android.longdo.adapters.TranslateAdapter2;
+import com.google.cloud.android.longdo.helps.ConnectivityReceiver;
 import com.google.cloud.android.longdo.models.Language;
 import com.google.cloud.android.longdo.models.Translate;
 import com.google.cloud.android.longdo.responses.TranslateResponse;
@@ -80,17 +83,16 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private LanguageDBHelper languageDBHelper;
     SharedPreferences sharedpreferences;
     SharedPreferences.Editor editor1;
-    int voiceSpeed;
     private FloatingActionButton fabListen;
     private RecyclerView mRecyclerView;
-    String resourceLanguageCode="en",targetLanguageCode="ja",speechCodeSource="en-US",speechCodeTarget="ja-JP",flagFrom="us",flagTo="jp",languageFrom="English (United States)",languageTo="Japanese";
+    String resourceLanguageCode,targetLanguageCode,speechCodeSource,speechCodeTarget,flagFrom,flagTo,languageFrom,languageTo;
     TranslateAdapter adapter;
     TranslateAdapter2 adapter2;
     ArrayList<Translate> array_list;
     private TextView targetLanguage,sourceLanguage;
     private ImageView flagIconFrom,flagIconTo;
     TextToSpeech t1;
-
+    private ConnectivityReceiver connectivityReceiver;
 
 
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
@@ -98,9 +100,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         @Override
         public void onVoiceStart() {
             if (mSpeechService != null) {
-                voiceSpeed=sharedpreferences.getInt("SpeedVoice", 16000);
-                Log.d("GetSamplerate",String.valueOf(voiceSpeed));
-                mSpeechService.startRecognizing(voiceSpeed);
+                mSpeechService.startRecognizing(mVoiceRecorder.getSampleRate());
             }
         }
 
@@ -141,9 +141,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     @Override
     protected void onResume(){
         super.onResume();
-        voiceSpeed=sharedpreferences.getInt("SpeedVoice", 16000);
         boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
-        Log.d("Delete",String.valueOf(voiceSpeed));
         if(autoBackground){
             adapter2= new TranslateAdapter2(array_list, getApplication());
             mRecyclerView.setAdapter(adapter2);
@@ -166,13 +164,38 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         editor1 = sharedpreferences.edit();
         boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
+        resourceLanguageCode=sharedpreferences.getString("resourceLanguageCode", "en");
+        Log.d("resourceLanguageCode",resourceLanguageCode);
+        targetLanguageCode=sharedpreferences.getString("targetLanguageCode", "ja");
+        speechCodeSource=sharedpreferences.getString("speechCodeSource", "en-US");
+        speechCodeTarget=sharedpreferences.getString("speechCodeTarget", "ja-JP");
+        flagFrom=sharedpreferences.getString("flagFrom", "us");
+        flagTo=sharedpreferences.getString("flagTo", "jp");
+        languageFrom=sharedpreferences.getString("languageFrom", "English (United States)");
+        languageTo=sharedpreferences.getString("languageTo", "Japanese");
         flagIconFrom=(ImageView) findViewById(R.id.toolBarFlagFrom);
-        flagIconFrom.setBackgroundResource(R.drawable.us);
+        int resIDFrom = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+        int resIDTo = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+        flagIconFrom.setImageResource(resIDFrom);
         flagIconTo=(ImageView) findViewById(R.id.toolBarFlagTo);
-        flagIconTo.setBackgroundResource(R.drawable.jp);
+        flagIconTo.setImageResource(resIDTo);
         sourceLanguage=(TextView) findViewById(R.id.sourceLanguage);
+        if (languageFrom.length() > 10) {
+            String truncated = languageFrom.subSequence(0, 10).toString().concat("...");
+            sourceLanguage.setText(truncated);
+        }
+        else {
+            sourceLanguage.setText(languageFrom);
+        }
         sourceLanguage.setOnClickListener(onClickListener);
         targetLanguage=(TextView) findViewById(R.id.targetLanguage);
+        if (languageTo.length() > 10) {
+            String truncated = languageTo.subSequence(0, 10).toString().concat("...");
+            targetLanguage.setText(truncated);
+        }
+        else {
+            targetLanguage.setText(languageTo);
+        }
         targetLanguage.setOnClickListener(onClickListener);
 
         t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -184,20 +207,24 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             }
         });
 
-
+        connectivityReceiver= new ConnectivityReceiver(this);
 
         fabListen= (FloatingActionButton) findViewById(R.id.btnFloatingAction);
         fabListen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplication(), SpeechService.class);
-                intent.putExtra("speechCode", speechCodeSource);
-                // Prepare Cloud Speech API
-                bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
-                startVoiceRecorder();
+                boolean isConnectedInternet = connectivityReceiver.isConnected();
+                if(isConnectedInternet){
+                    Intent intent = new Intent(getApplication(), SpeechService.class);
+                    intent.putExtra("speechCode", speechCodeSource);
+                    bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+                    startVoiceRecorder();
+                    fabListen.animate().scaleX(0).scaleY(0).start();
+                }
+                else {
+                    showSnack();
+                }
 
-                Log.d("Log","Listening");
-                fabListen.animate().scaleX(0).scaleY(0).start();
             }
         });
 
@@ -209,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         if (array_list!=null){
             mRecyclerView.setBackground(null);
         }
-        Log.d("autoBackground",String.valueOf(autoBackground));
         if(autoBackground){
         adapter2= new TranslateAdapter2(array_list, getApplication());
             mRecyclerView.setAdapter(adapter2);
@@ -289,10 +315,15 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(getApplication(), SpeechService.class);
-        intent.putExtra("speechCode", speechCodeSource);
-        // Prepare Cloud Speech API
-        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+        boolean isConnectedInternet = connectivityReceiver.isConnected();
+        if(isConnectedInternet) {
+            Intent intent = new Intent(getApplication(), SpeechService.class);
+            intent.putExtra("speechCode", speechCodeSource);
+            bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+        }
+        else {
+            showSnack();
+        }
         // Start listening to voices
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -309,12 +340,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
 
     @Override
     protected void onStop() {
-        // Stop listening to voice
         stopVoiceRecorder();
-        // Stop Cloud Speech API
-        mSpeechService.removeListener(mSpeechServiceListener);
-        unbindService(mServiceConnection);
-        mSpeechService = null;
         super.onStop();
     }
 
@@ -378,7 +404,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                     callAccept.enqueue(new Callback<TranslateResponse>() {
                                         @Override
                                         public void onResponse(Call<TranslateResponse> call, Response<TranslateResponse> response) {
-                                            Log.d("TAG", "onResponse: " + response.body().getTranslateData().getTranslations().toString().substring(1,response.body().getTranslateData().getTranslations().toString().length()-1));
                                             Translate translate=new Translate();
                                             translate.setLangcode_from(resourceLanguageCode);
                                             translate.setLangcode_to(targetLanguageCode);
@@ -389,9 +414,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             translate.setLanguage_from(languageFrom);
                                             translate.setLanguage_to(languageTo);
                                             translateDBHelper.insertTranslate(translate);
-
                                             boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
-                                            Log.d("Delete",String.valueOf(voiceSpeed));
                                             if(autoBackground){
                                                 mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
                                                 adapter2.insert(0,translate);
@@ -401,7 +424,10 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                                 mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
                                                 adapter.insert(0,translate);
                                             }
-
+                                            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+                                            itemAnimator.setAddDuration(1000);
+                                            itemAnimator.setRemoveDuration(1000);
+                                            mRecyclerView.setItemAnimator(itemAnimator);
                                             mRecyclerView.invalidate();
                                             mRecyclerView.smoothScrollToPosition(0);
                                             mRecyclerView.setBackground(null);
@@ -411,8 +437,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             mSpeechService.removeListener(mSpeechServiceListener);
                                             unbindService(mServiceConnection);
                                             mSpeechService = null;
-                                            Log.d("service","stop");
-
                                         }
                                         @Override
                                         public void onFailure(Call<TranslateResponse> call, Throwable t) {
@@ -491,6 +515,11 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             languageFrom=obj.getLanguageName();
                             speechCodeSource=String.valueOf(obj.getSpeechCode());
                             Log.d("Long",resourceLanguageCode+"-----"+speechCodeSource);
+                            editor1.putString("resourceLanguageCode",resourceLanguageCode);
+                            editor1.putString("languageFrom",languageFrom);
+                            editor1.putString("speechCodeSource",speechCodeSource);
+                            editor1.putString("flagFrom",flagFrom);
+                            editor1.commit();
                             dialogSoureLaguage.dismiss();
                         }});
                     dialogSoureLaguage.show();
@@ -518,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             if(String.valueOf(obj.getLanguageCode()).equals(resourceLanguageCode)){
                                 resourceLanguageCode=targetLanguageCode;
                                 if (targetLanguage.getText().length() > 10) {
-                                    String truncated = targetLanguage.getText().subSequence(0, 10).toString().concat("...");
+                                    String truncated = targetLanguage.getText().subSequence(0, 9).toString().concat("...");
                                     sourceLanguage.setText(truncated);
                                 }
                                 else {
@@ -546,7 +575,11 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             targetLanguageCode=String.valueOf(obj.getLanguageCode());
                             speechCodeTarget=String.valueOf(obj.getSpeechCode());
                             languageTo=obj.getLanguageName();
-                            Log.d("Long",targetLanguageCode+"-----"+speechCodeSource);
+                            editor1.putString("flagTo",flagTo);
+                            editor1.putString("targetLanguageCode",targetLanguageCode);
+                            editor1.putString("languageTo",languageTo);
+                            editor1.putString("speechCodeTarget",speechCodeTarget);
+                            editor1.commit();
                             dialogTargetLanguage.dismiss();
                         }});
                     dialogTargetLanguage.show();
@@ -554,4 +587,22 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             }
         }
     };
+
+
+    private void showSnack() {
+        String message;
+        int color;
+
+            message = "Sorry! Not connected to internet";
+            color = Color.RED;
+
+
+        Snackbar snackbar = Snackbar
+                .make(findViewById(R.id.btnFloatingAction), message, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
+    }
 }

@@ -1,8 +1,12 @@
 package com.google.cloud.android.longdo.adapters;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +23,9 @@ import com.google.cloud.android.longdo.models.Translate;
 import com.google.cloud.android.longdo.sqlites.TranslateDBHelper;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import static com.google.cloud.android.longdo.R.id.flagFrom;
 import static com.google.cloud.android.longdo.R.id.flagTo;
@@ -32,11 +38,20 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
         private TranslateDBHelper translateDBHelper;
         private List<Translate> translateList = Collections.emptyList();
         Context context;
+        TextToSpeech textToSpeech;
 
     public TranslateAdapter2(List<Translate> translateList, Context context) {
             this.translateList = translateList;
             this.context = context;
             translateDBHelper = new TranslateDBHelper(context.getApplicationContext());
+            textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.UK);
+                }
+            }
+            });
         }
 
         @Override
@@ -97,10 +112,171 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                     notifyItemRangeChanged(position,translateList.size());
                 }
             });
+            final String speechCode=translateDBHelper.getSpeechCodeFromId(translateList.get(position).getId());
+            if("".equals(speechCode) ||speechCode==null )
+            {
+                holder.mSpeakButton.setImageResource(R.drawable.mute16);
+            }
+            else holder.mSpeakButton.setImageResource(R.drawable.volume16);
+
+            holder.mSpeakButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final String toSpeak = translateList.get(position).getText_to();
+                    if ("FRENCH".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.FRENCH);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if ("UK".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.UK);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    } else if("US".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.US);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if("GERMAN".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.GERMAN);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if("CANADA_FRENCH".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.CANADA_FRENCH);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if ("ITALIAN".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.ITALIAN);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if("ENGLISH".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.ENGLISH);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if ("JAPANESE".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.JAPANESE);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if("KOREA".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.KOREA);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if("TRADITIONAL_CHINESE".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.TRADITIONAL_CHINESE);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if("CHINESE".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.CHINESE);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                    else if ("SIMPLIFIED_CHINESE".equals(speechCode)){
+                        textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if(status != TextToSpeech.ERROR) {
+                                    textToSpeech.setLanguage(Locale.SIMPLIFIED_CHINESE);
+                                    playNextChunk(toSpeak);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
 
         }
-
-        @Override
+    private void playNextChunk(String text) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ttsGreater21(text);
+        } else {
+            ttsUnder20(text);
+        }}
+    @SuppressWarnings("deprecation")
+    private void ttsUnder20(String text) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MessageId");
+        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, map);
+    }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void ttsGreater21(String text) {
+        String utteranceId = this.hashCode() + "";
+        Bundle params = new Bundle();
+        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId);
+    }
         public int getItemCount() {
             if (translateList!=null){
                 return translateList.size();
@@ -136,6 +312,7 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
         ImageView flag_from,flag_to;
         LinearLayout relativeLayout;
         ImageButton mRemoveButton;
+        ImageButton mSpeakButton;
 
         View_Holder(View itemView) {
             super(itemView);
@@ -148,6 +325,7 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
             flag_to = (ImageView) itemView.findViewById(flagTo);
             relativeLayout=(LinearLayout) itemView.findViewById(R.id.background);
             mRemoveButton=(ImageButton) itemView.findViewById(R.id.ib_remove);
+            mSpeakButton=(ImageButton) itemView.findViewById(R.id.speakBtn);
         }
     }
 }

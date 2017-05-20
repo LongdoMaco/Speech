@@ -179,7 +179,6 @@ public class SpeechService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         speechCode = intent.getStringExtra("speechCode");
-        Log.d("Service-Speechcode",speechCode);
         return mBinder;
     }
 
