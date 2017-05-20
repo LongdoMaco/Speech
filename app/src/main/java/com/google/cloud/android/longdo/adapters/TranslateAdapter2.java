@@ -2,6 +2,7 @@ package com.google.cloud.android.longdo.adapters;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -39,19 +40,16 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
         private List<Translate> translateList = Collections.emptyList();
         Context context;
         TextToSpeech textToSpeech;
+        SharedPreferences sharedpreferences;
+        public static final String MyPREFERENCES = "MyPrefs" ;
+        SharedPreferences.Editor editor;
 
     public TranslateAdapter2(List<Translate> translateList, Context context) {
             this.translateList = translateList;
             this.context = context;
             translateDBHelper = new TranslateDBHelper(context.getApplicationContext());
-            textToSpeech=new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    textToSpeech.setLanguage(Locale.UK);
-                }
-            }
-            });
+            sharedpreferences = context.getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+            editor = sharedpreferences.edit();
         }
 
         @Override
@@ -113,6 +111,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                 }
             });
             final String speechCode=translateDBHelper.getSpeechCodeFromId(translateList.get(position).getId());
+            final float speedVoice=sharedpreferences.getFloat("SpeedVoice", 1f);
+            final float pitchVoice=sharedpreferences.getFloat("VoicePitch", 1f);
             if("".equals(speechCode) ||speechCode==null )
             {
                 holder.mSpeakButton.setImageResource(R.drawable.mute16);
@@ -129,6 +129,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.FRENCH);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -140,6 +142,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.UK);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -150,6 +154,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.US);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -161,6 +167,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.GERMAN);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -172,6 +180,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.CANADA_FRENCH);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -183,6 +193,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.ITALIAN);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -194,6 +206,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.ENGLISH);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -205,6 +219,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.JAPANESE);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -216,6 +232,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.KOREA);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -227,6 +245,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.TRADITIONAL_CHINESE);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -238,6 +258,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.CHINESE);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }
@@ -249,6 +271,8 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
                             public void onInit(int status) {
                                 if(status != TextToSpeech.ERROR) {
                                     textToSpeech.setLanguage(Locale.SIMPLIFIED_CHINESE);
+                                    textToSpeech.setSpeechRate(speedVoice);
+                                    textToSpeech.setPitch(pitchVoice);
                                     playNextChunk(toSpeak);
                                 }
                             }

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,7 +106,6 @@ public class TranslateAdapter extends RecyclerView.Adapter<TranslateAdapter.View
         final String speechCode=translateDBHelper.getSpeechCodeFromId(translateList.get(position).getId());
         final float speedVoice=sharedpreferences.getFloat("SpeedVoice", 1f);
         final float pitchVoice=sharedpreferences.getFloat("VoicePitch", 1f);
-        Log.d("VoicePicth",String.valueOf(pitchVoice));
         if("".equals(speechCode) || speechCode==null )
         {
             holder.mSpeakButton.setImageResource(R.drawable.mute16);
