@@ -115,9 +115,9 @@ public class TranslateAdapter2 extends RecyclerView.Adapter<TranslateAdapter2.Vi
             final float pitchVoice=sharedpreferences.getFloat("VoicePitch", 1f);
             if("".equals(speechCode) ||speechCode==null )
             {
-                holder.mSpeakButton.setImageResource(R.drawable.mute16);
+                holder.mSpeakButton.setImageResource(R.drawable.mute24);
             }
-            else holder.mSpeakButton.setImageResource(R.drawable.volume16);
+            else holder.mSpeakButton.setImageResource(R.drawable.volume24);
 
             holder.mSpeakButton.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -121,6 +121,7 @@ public class SpeechService extends Service {
                     listener.onSpeechRecognized(text, isFinal);
                 }
             }
+
         }
 
         @Override

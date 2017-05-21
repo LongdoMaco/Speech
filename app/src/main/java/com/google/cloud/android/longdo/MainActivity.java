@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     private ImageView flagIconFrom,flagIconTo;
     TextToSpeech t1;
     private ConnectivityReceiver connectivityReceiver;
+    Snackbar snackbar;
 
 
     private final VoiceRecorder.Callback mVoiceCallback = new VoiceRecorder.Callback() {
@@ -220,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                     bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
                     startVoiceRecorder();
                     fabListen.animate().scaleX(0).scaleY(0).start();
+                    showSnackResult("Listenning...");
                 }
                 else {
                     showSnack();
@@ -424,15 +426,10 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                                 mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
                                                 adapter.insert(0,translate);
                                             }
-                                            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-                                            itemAnimator.setAddDuration(1000);
-                                            itemAnimator.setRemoveDuration(1000);
-                                            mRecyclerView.setItemAnimator(itemAnimator);
-                                            mRecyclerView.invalidate();
                                             mRecyclerView.smoothScrollToPosition(0);
                                             mRecyclerView.setBackground(null);
-
                                             fabListen.animate().scaleX(1).scaleY(1).start();
+                                            snackbar.dismiss();
                                             stopVoiceRecorder();
                                             mSpeechService.removeListener(mSpeechServiceListener);
                                             unbindService(mServiceConnection);
@@ -446,7 +443,9 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                         }
                                     });
 
-                                } else {
+                                }
+                                else {
+                                        snackbar.setText(text);
                                 }
                             }
                         });
@@ -487,39 +486,56 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             String title = String.valueOf(obj.getLanguageName());
                             if(String.valueOf(obj.getLanguageCode()).equals(targetLanguageCode)){
                                 targetLanguageCode=resourceLanguageCode;
-                                if (sourceLanguage.getText().length() > 10) {
-                                    String truncated = sourceLanguage.getText().subSequence(0, 10).toString().concat("...");
-                                    targetLanguage.setText(truncated);
-                                }
-                                else {
                                     targetLanguage.setText(sourceLanguage.getText());
-                                }
-
                                 flagTo=flagFrom;
                                 languageTo=languageFrom;
+                                languageFrom=obj.getLanguageName();
+                                resourceLanguageCode=obj.getLanguageCode();
+                                speechCodeTarget=speechCodeSource;
+                                speechCodeSource=obj.getSpeechCode();
                                 int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
                                 flagIconTo.setImageResource(resID);
+                                flagFrom=obj.getIcon();
+                                int resIDFrom = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+                                flagIconFrom.setImageResource(resIDFrom);
+                                editor1.putString("flagTo",flagTo);
+                                editor1.putString("targetLanguageCode",targetLanguageCode);
+                                editor1.putString("languageTo",languageTo);
+                                editor1.putString("speechCodeTarget",speechCodeTarget);
+                                editor1.putString("resourceLanguageCode",resourceLanguageCode);
+                                editor1.putString("languageFrom",languageFrom);
+                                editor1.putString("speechCodeSource",speechCodeSource);
+                                editor1.putString("flagFrom",flagFrom);
+                                if (title.length() > 10) {
+                                    String truncated = title.subSequence(0, 12).toString().concat("...");
+                                    sourceLanguage.setText(truncated);
+                                }
+                                else {
+                                    sourceLanguage.setText(title);
+                                }
+                                editor1.commit();
 
                             }
-                            if (title.length() > 10) {
-                                String truncated = title.subSequence(0, 12).toString().concat("...");
-                                sourceLanguage.setText(truncated);
+                            else{
+                                if (title.length() > 10) {
+                                    String truncated = title.subSequence(0, 12).toString().concat("...");
+                                    sourceLanguage.setText(truncated);
+                                }
+                                else {
+                                    sourceLanguage.setText(title);
+                                }
+                                flagFrom=obj.getIcon();
+                                int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
+                                flagIconFrom.setImageResource(resID);
+                                resourceLanguageCode=String.valueOf(obj.getLanguageCode());
+                                languageFrom=obj.getLanguageName();
+                                speechCodeSource=String.valueOf(obj.getSpeechCode());
+                                editor1.putString("resourceLanguageCode",resourceLanguageCode);
+                                editor1.putString("languageFrom",languageFrom);
+                                editor1.putString("speechCodeSource",speechCodeSource);
+                                editor1.putString("flagFrom",flagFrom);
+                                editor1.commit();
                             }
-                            else {
-                                sourceLanguage.setText(title);
-                            }
-                            flagFrom=obj.getIcon();
-                            int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
-                            flagIconFrom.setImageResource(resID);
-                            resourceLanguageCode=String.valueOf(obj.getLanguageCode());
-                            languageFrom=obj.getLanguageName();
-                            speechCodeSource=String.valueOf(obj.getSpeechCode());
-                            Log.d("Long",resourceLanguageCode+"-----"+speechCodeSource);
-                            editor1.putString("resourceLanguageCode",resourceLanguageCode);
-                            editor1.putString("languageFrom",languageFrom);
-                            editor1.putString("speechCodeSource",speechCodeSource);
-                            editor1.putString("flagFrom",flagFrom);
-                            editor1.commit();
                             dialogSoureLaguage.dismiss();
                         }});
                     dialogSoureLaguage.show();
@@ -546,40 +562,56 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             String title = String.valueOf(obj.getLanguageName());
                             if(String.valueOf(obj.getLanguageCode()).equals(resourceLanguageCode)){
                                 resourceLanguageCode=targetLanguageCode;
-                                if (targetLanguage.getText().length() > 10) {
-                                    String truncated = targetLanguage.getText().subSequence(0, 9).toString().concat("...");
-                                    sourceLanguage.setText(truncated);
-                                }
-                                else {
-                                    sourceLanguage.setText(targetLanguage.getText());
-                                }
+                                sourceLanguage.setText(targetLanguage.getText());
                                 flagFrom=flagTo;
                                 languageFrom=languageTo;
-                                Log.d("Long",speechCodeTarget+"-----"+speechCodeTarget);
                                 speechCodeSource=speechCodeTarget;
+                                speechCodeTarget=obj.getSpeechCode();
+                                languageTo=obj.getLanguageName();
+                                targetLanguageCode=obj.getLanguageCode();
                                 int resID = getApplication().getResources().getIdentifier(flagFrom, "drawable", getApplicationContext().getPackageName());
                                 flagIconFrom.setImageResource(resID);
+                                flagTo=obj.getIcon();
+                                int resIDFrom = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+                                flagIconTo.setImageResource(resIDFrom);
+                                editor1.putString("resourceLanguageCode",resourceLanguageCode);
+                                editor1.putString("languageFrom",languageFrom);
+                                editor1.putString("speechCodeSource",speechCodeSource);
+                                editor1.putString("flagFrom",flagFrom);
+                                editor1.putString("flagTo",flagTo);
+                                editor1.putString("targetLanguageCode",targetLanguageCode);
+                                editor1.putString("languageTo",languageTo);
+                                editor1.putString("speechCodeTarget",speechCodeTarget);
+                                editor1.commit();
+                                if (title.length() > 10) {
+                                    String truncated = title.subSequence(0, 12).toString().concat("...");
+                                    targetLanguage.setText(truncated);
+                                }
+                                else {
+                                    targetLanguage.setText(title);
+                                }
+                            }
+                            else{
+                                if (title.length() > 10) {
+                                    String truncated = title.subSequence(0, 12).toString().concat("...");
+                                    targetLanguage.setText(truncated);
+                                }
+                                else {
+                                    targetLanguage.setText(title);
+                                }
+                                flagTo=obj.getIcon();
+                                int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
+                                flagIconTo.setImageResource(resID);
+                                targetLanguageCode=String.valueOf(obj.getLanguageCode());
+                                speechCodeTarget=String.valueOf(obj.getSpeechCode());
+                                languageTo=obj.getLanguageName();
+                                editor1.putString("flagTo",flagTo);
+                                editor1.putString("targetLanguageCode",targetLanguageCode);
+                                editor1.putString("languageTo",languageTo);
+                                editor1.putString("speechCodeTarget",speechCodeTarget);
+                                editor1.commit();
+                            }
 
-                            }
-                            if (title.length() > 10) {
-                                String truncated = title.subSequence(0, 12).toString().concat("...");
-                                Log.d("Truncat",truncated);
-                                targetLanguage.setText(truncated);
-                            }
-                            else {
-                                targetLanguage.setText(title);
-                            }
-                            flagTo=obj.getIcon();
-                            int resID = getApplication().getResources().getIdentifier(flagTo, "drawable", getApplicationContext().getPackageName());
-                            flagIconTo.setImageResource(resID);
-                            targetLanguageCode=String.valueOf(obj.getLanguageCode());
-                            speechCodeTarget=String.valueOf(obj.getSpeechCode());
-                            languageTo=obj.getLanguageName();
-                            editor1.putString("flagTo",flagTo);
-                            editor1.putString("targetLanguageCode",targetLanguageCode);
-                            editor1.putString("languageTo",languageTo);
-                            editor1.putString("speechCodeTarget",speechCodeTarget);
-                            editor1.commit();
                             dialogTargetLanguage.dismiss();
                         }});
                     dialogTargetLanguage.show();
@@ -596,13 +628,34 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
             message = "Sorry! Not connected to internet";
             color = Color.RED;
 
-
-        Snackbar snackbar = Snackbar
-                .make(findViewById(R.id.btnFloatingAction), message, Snackbar.LENGTH_LONG);
+        snackbar = Snackbar
+                .make(findViewById(R.id.btnFloatingAction), message, Snackbar.LENGTH_INDEFINITE);
 
         View sbView = snackbar.getView();
         TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(color);
+        snackbar.show();
+    }
+    private void showSnackResult(String text) {
+        int color;
+        color = Color.WHITE;
+        snackbar = Snackbar
+                .make(findViewById(R.id.btnFloatingAction), text, Snackbar.LENGTH_INDEFINITE);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.setAction("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopVoiceRecorder();
+                mSpeechService.removeListener(mSpeechServiceListener);
+                unbindService(mServiceConnection);
+                mSpeechService = null;
+                fabListen.animate().scaleX(1).scaleY(1).start();
+                snackbar.dismiss();
+            }
+        });
         snackbar.show();
     }
 }
