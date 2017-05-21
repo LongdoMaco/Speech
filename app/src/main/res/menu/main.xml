@@ -7,7 +7,7 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
     <item android:id="@+id/action_deleteAllTranslates"
-        android:title="Clear Translate"
+        android:title="Clear Translation"
         android:orderInCategory="200"
         app:showAsAction="never" />
     <item android:id="@+id/action_feedback"

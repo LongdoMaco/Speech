@@ -143,13 +143,21 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
     protected void onResume(){
         super.onResume();
         boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
+        array_list = translateDBHelper.getAllTranslates();
+        if (array_list!=null){
+            mRecyclerView.setBackground(null);
+        }
         if(autoBackground){
             adapter2= new TranslateAdapter2(array_list, getApplication());
             mRecyclerView.setAdapter(adapter2);
+            Log.d("autoBackground","adapter2");
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         }
         else {
             adapter = new TranslateAdapter(array_list, getApplication());
             mRecyclerView.setAdapter(adapter);
+            Log.d("autoBackground","adapter");
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         }
     }
 
@@ -234,24 +242,6 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         translateDBHelper = new TranslateDBHelper(this);
         languageDBHelper=new LanguageDBHelper(this);
-        array_list = translateDBHelper.getAllTranslates();
-        if (array_list!=null){
-            mRecyclerView.setBackground(null);
-        }
-        if(autoBackground){
-        adapter2= new TranslateAdapter2(array_list, getApplication());
-            mRecyclerView.setAdapter(adapter2);
-            Log.d("autoBackground","adapter2");
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-        else {
-        adapter = new TranslateAdapter(array_list, getApplication());
-            mRecyclerView.setAdapter(adapter);
-            Log.d("autoBackground","adapter");
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-
-
     }
     @Override
 
@@ -402,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                             @Override
                             public void run() {
                                 if (isFinal) {
+                                    stopVoiceRecorder();
                                     Call<TranslateResponse> callAccept = WebserviceUtil.getInstance().translate(API_KEY,text,resourceLanguageCode,targetLanguageCode);
                                     callAccept.enqueue(new Callback<TranslateResponse>() {
                                         @Override
@@ -419,21 +410,18 @@ public class MainActivity extends AppCompatActivity implements MessageDialogFrag
                                             boolean autoBackground=sharedpreferences.getBoolean("autoBackground", false);
                                             if(autoBackground){
                                                 mRecyclerView.setAdapter(new TranslateAdapter2(translateDBHelper.getAllTranslates(),getApplication()));
-                                                adapter2.insert(0,translate);
-
                                             }
                                             else {
                                                 mRecyclerView.setAdapter(new TranslateAdapter(translateDBHelper.getAllTranslates(),getApplication()));
-                                                adapter.insert(0,translate);
                                             }
+                                            mSpeechService.removeListener(mSpeechServiceListener);
+                                            unbindService(mServiceConnection);
+                                            mSpeechService = null;
                                             mRecyclerView.smoothScrollToPosition(0);
                                             mRecyclerView.setBackground(null);
                                             fabListen.animate().scaleX(1).scaleY(1).start();
                                             snackbar.dismiss();
-                                            stopVoiceRecorder();
-                                            mSpeechService.removeListener(mSpeechServiceListener);
-                                            unbindService(mServiceConnection);
-                                            mSpeechService = null;
+
                                         }
                                         @Override
                                         public void onFailure(Call<TranslateResponse> call, Throwable t) {

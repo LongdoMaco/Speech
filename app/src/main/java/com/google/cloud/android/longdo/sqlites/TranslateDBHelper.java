@@ -47,7 +47,7 @@ public class TranslateDBHelper{
     }
 
     public ArrayList<Translate> getAllTranslates(){
-        String qr = "Select * from translates order by id desc";
+        String qr = "SELECT * FROM translates order by id desc LIMIT 15";
         SQLiteDatabase db = dbHelper.openDatabase();
         ArrayList<Translate> translateList = new ArrayList<>();
         Translate translate = null;
@@ -96,14 +96,12 @@ public class TranslateDBHelper{
     }
 
     public String getSpeechCodeFromId(int id) {
-
         String textTo;
         String qr= "select language_speech_status from translates,languages where translates.LANGUAGE_TO=languages.language_name and translates.id="+id;
         SQLiteDatabase db = dbHelper.openDatabase();
         Cursor cursor = db.rawQuery(qr, null);
         cursor.moveToFirst();
         textTo=cursor.getString(0);
-        Log.d("language_speech_status",id+"  "+String.valueOf(textTo));
         return textTo;
     }
 
